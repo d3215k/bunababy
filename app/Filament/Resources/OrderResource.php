@@ -51,12 +51,6 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    #[Computed()]
-    public function kecamatan()
-    {
-        return Kecamatan::pluck('name', 'id')->toArray();
-    }
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery();
@@ -337,13 +331,13 @@ class OrderResource extends Resource
             Forms\Components\Select::make('customer_id')
                 ->relationship('customer', 'name')
                 ->live()
-                ->preload()
+                // ->preload()
                 ->searchable()
                 ->required()
                 ->columnSpanFull()
                 ->afterStateUpdated(function ($state, Set $set) {
                     $set('address_id', null);
-                    $set('customer_name', Customer::find($state)?->name);
+                    $set('customer_name', Customer::where('id', $state)->value('name'));
                 })
                 ->createOptionForm([
                     Forms\Components\TextInput::make('name')
@@ -365,9 +359,11 @@ class OrderResource extends Resource
                 ->relationship(
                     'address',
                     'label',
-                    fn (Builder $query, Get $get) => $query->where('customer_id', $get('customer_id'))
+                    fn (Builder $query, Get $get) => $query
+                        ->where('customer_id', $get('customer_id'))
+                        // ->with(['kecamatan.kabupaten'])
                 )
-                ->getOptionLabelFromRecordUsing(fn (Address $record) => "{$record->label} {$record->fullAddress}")
+                ->getOptionLabelFromRecordUsing(fn (Address $record) => "{$record->label} {$record->full_address}")
                 ->hidden(fn (Get $get) => !$get('customer_id'))
                 ->columnSpanFull()
                 ->reactive()
@@ -388,7 +384,7 @@ class OrderResource extends Resource
                         ->maxLength(255),
                     Forms\Components\Select::make('kecamatan_id')
                         ->label('Kecamatan')
-                        ->options(fn () => $this->kecamatan())
+                        ->options(fn () => Kecamatan::pluck('name', 'id')->toArray())
                         ->required()
                         ->searchable()
                         ->preload(),
@@ -403,8 +399,7 @@ class OrderResource extends Resource
                     ]);
                 })
                 ->afterStateUpdated(function ($state, Set $set) {
-                    $address = Address::find($state);
-                    $set('full_address', $address->fullAddress);
+                    $set('full_address', Address::where('id', $state)->value('full_address'));
                 }),
         ];
     }
@@ -533,7 +528,7 @@ class OrderResource extends Resource
         return [
             Forms\Components\ToggleButtons::make('place_id')
                 ->label('Tempat')
-                ->options(Place::pluck('name', 'id')->toArray())
+                ->options(fn () => Place::pluck('name', 'id')->toArray())
                 ->inline()
                 ->required()
                 ->live()
@@ -669,6 +664,10 @@ class OrderResource extends Resource
                                 return [];
                             }
                             return  $midwife->treatments->pluck('name', 'id')->toArray();
+                        }
+
+                        if ($get('../../room_id') === null) {
+                            return [];
                         }
 
                         $room = Room::find($get('../../room_id'));

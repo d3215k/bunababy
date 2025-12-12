@@ -17,7 +17,18 @@ class Address extends Model
         'is_main' => 'boolean',
     ];
 
-    protected $appends = ['full_address'];
+    protected static function booted(): void
+    {
+        static::saving(function ($model) {
+            $kecamatan = $model->kecamatan()->with('kabupaten')->first();
+
+            $model->full_address =
+                $model->address . " Desa/Kel. " .
+                $model->desa . " Kec. " .
+                optional($kecamatan)->name . " " .
+                optional(optional($kecamatan)->kabupaten)->name;
+        });
+    }
 
     public function customer(): BelongsTo
     {
@@ -27,18 +38,6 @@ class Address extends Model
     public function kecamatan(): BelongsTo
     {
         return $this->belongsTo(Kecamatan::class);
-    }
-
-    public function getFullAddressAttribute(): string
-    {
-        return $this->address
-            . " Desa/Kel. "
-            . $this->desa
-            . " Kec. "
-            . $this->kecamatan->name
-            . " "
-            . $this->kecamatan->kabupaten->name
-            ;
     }
 
     public function scopeMainAddress($query)

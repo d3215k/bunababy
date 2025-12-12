@@ -61,7 +61,8 @@ class RoomResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (): bool => auth()->user()->is_owner),
             ])
             ->bulkActions([
                 //
