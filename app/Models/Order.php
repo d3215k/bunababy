@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\OrderFactory;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\PlaceType;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrderFactory> */
+    /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
     const TRAVEL_TIME = 40;

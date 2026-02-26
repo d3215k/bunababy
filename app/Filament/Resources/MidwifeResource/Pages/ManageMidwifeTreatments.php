@@ -2,11 +2,16 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\AttachAction;
+use Filament\Actions\Action;
+use Filament\Actions\DetachAction;
 use App\Enums\UserType;
 use App\Filament\Resources\MidwifeResource;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -21,7 +26,7 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
 
     protected static ?string $title = 'Atur Layanan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {
@@ -33,11 +38,11 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
         return $this->getRecord()->name;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -48,15 +53,15 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('desc')
+                TextColumn::make('desc')
                     ->wrap(),
-                Tables\Columns\TextColumn::make('duration')
+                TextColumn::make('duration')
                     ->numeric()
                     ->sortable()
                     ->suffix(' menit'),
-                Tables\Columns\TextColumn::make('category.name')
+                TextColumn::make('category.name')
                     ->numeric()
                     ->sortable(),
             ])
@@ -64,19 +69,19 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect()
                     ->visible(fn() => auth()->user()->type === UserType::OWNER),
             ])
-            ->actions([
-                Tables\Actions\Action::make('Lihat Treatment')
+            ->recordActions([
+                Action::make('Lihat Treatment')
                     ->visible(fn() => auth()->user()->type === UserType::OWNER)
                     ->icon('heroicon-o-document-text')
                     ->url(fn($record) => route('filament.admin.resources.treatments.edit', $record)),
-                Tables\Actions\DetachAction::make()
+                DetachAction::make()
                     ->visible(fn() => auth()->user()->type === UserType::OWNER),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DetachBulkAction::make(),
                 //     Tables\Actions\DeleteBulkAction::make(),

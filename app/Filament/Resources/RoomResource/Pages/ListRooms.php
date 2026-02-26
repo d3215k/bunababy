@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RoomResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\RoomResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -13,7 +14,7 @@ class ListRooms extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->visible(fn (): bool => auth()->user()->is_owner),
         ];
     }

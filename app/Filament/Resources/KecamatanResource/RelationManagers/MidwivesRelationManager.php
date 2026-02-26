@@ -2,9 +2,14 @@
 
 namespace App\Filament\Resources\KecamatanResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\AttachAction;
+use Filament\Actions\Action;
+use Filament\Actions\DetachAction;
 use App\Models\Midwife;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,10 +20,10 @@ class MidwivesRelationManager extends RelationManager
 {
     protected static string $relationship = 'midwives';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -28,32 +33,32 @@ class MidwivesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('treatments_count')
+                TextColumn::make('treatments_count')
                     ->counts('treatments')
                     ->label('Z'),
-                Tables\Columns\TextColumn::make('treatments.name')
+                TextColumn::make('treatments.name')
                     ->wrap(),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean()
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->actions([
-                Tables\Actions\Action::make('Lihat Bidan')
+            ->recordActions([
+                Action::make('Lihat Bidan')
                     ->icon('heroicon-o-user')
                     ->url(fn (Midwife $record) => route('filament.admin.resources.midwives.kecamatans', $record)),
-                Tables\Actions\DetachAction::make()
+                DetachAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ]);
     }

@@ -11,11 +11,11 @@ use Flowframe\Trend\TrendValue;
 
 class MidwifeOrdersChart extends ChartWidget
 {
-    protected static ?string $heading = 'Completed this month';
+    protected ?string $heading = 'Completed this month';
 
     protected static ?int $sort = 3;
 
-    protected static string $color = 'info';
+    protected string $color = 'info';
 
     protected $colors = [
             [

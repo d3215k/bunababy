@@ -2,9 +2,15 @@
 
 namespace App\Filament\Resources\CategoryResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\Action;
 use App\Models\Treatment;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,20 +21,20 @@ class TreatmentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'treatments';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('desc')
+                Textarea::make('desc')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('duration')
+                TextInput::make('duration')
                     ->required()
                     ->numeric()
                     ->suffix(' menit'),
-                Forms\Components\Toggle::make('active')
+                Toggle::make('active')
                     ->required(),
 
             ]);
@@ -40,15 +46,15 @@ class TreatmentsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('desc')
+                TextColumn::make('desc')
                     ->wrap(),
-                Tables\Columns\TextColumn::make('duration')
+                TextColumn::make('duration')
                     ->numeric()
                     ->sortable()
                     ->suffix(' menit'),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean(),
             ])
             ->filters([
@@ -58,12 +64,12 @@ class TreatmentsRelationManager extends RelationManager
                 // Tables\Actions\AttachAction::make()
                 //     ->preloadRecordSelect(),
             ])
-            ->actions([
-                Tables\Actions\Action::make('Lihat Treatment')
+            ->recordActions([
+                Action::make('Lihat Treatment')
                     ->icon('heroicon-o-eye')
                     ->url(fn (Treatment $record) => route('filament.admin.resources.treatments.edit', $record)),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),

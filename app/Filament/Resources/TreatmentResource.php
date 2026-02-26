@@ -2,13 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\TreatmentResource\RelationManagers\MidwivesRelationManager;
+use App\Filament\Resources\TreatmentResource\RelationManagers\PlacesRelationManager;
+use App\Filament\Resources\TreatmentResource\Pages\ListTreatments;
+use App\Filament\Resources\TreatmentResource\Pages\CreateTreatment;
+use App\Filament\Resources\TreatmentResource\Pages\EditTreatment;
 use App\Filament\Resources\TreatmentResource\Pages;
 use App\Filament\Resources\TreatmentResource\RelationManagers;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Treatment;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -21,9 +33,9 @@ class TreatmentResource extends Resource
 
     protected static ?string $model = Treatment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Sistem';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
 
     protected static ?int $navigationSort = 4;
 
@@ -33,24 +45,24 @@ class TreatmentResource extends Resource
             ->withoutGlobalScope(ActiveScope::class);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('desc')
+                Textarea::make('desc')
                     ->columnSpanFull(),
-                Forms\Components\Select::make('category_id')
+                Select::make('category_id')
                     ->relationship('category', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('duration')
+                TextInput::make('duration')
                     ->required()
                     ->numeric()
                     ->suffix(' menit'),
-                Forms\Components\Toggle::make('active')
+                Toggle::make('active')
                     ->required(),
             ])
             ->disabled(fn () => !auth()->user()->isOwner);
@@ -60,31 +72,31 @@ class TreatmentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('desc')
+                TextColumn::make('desc')
                     ->wrap(),
-                Tables\Columns\TextColumn::make('duration')
+                TextColumn::make('duration')
                     ->numeric()
                     ->sortable()
                     ->suffix(' menit'),
-                Tables\Columns\TextColumn::make('category.name')
+                TextColumn::make('category.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('sort')
+                TextColumn::make('sort')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -94,17 +106,17 @@ class TreatmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\MidwivesRelationManager::class,
-            RelationManagers\PlacesRelationManager::class,
+            MidwivesRelationManager::class,
+            PlacesRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTreatments::route('/'),
-            'create' => Pages\CreateTreatment::route('/create'),
-            'edit' => Pages\EditTreatment::route('/{record}/edit'),
+            'index' => ListTreatments::route('/'),
+            'create' => CreateTreatment::route('/create'),
+            'edit' => EditTreatment::route('/{record}/edit'),
         ];
     }
 }

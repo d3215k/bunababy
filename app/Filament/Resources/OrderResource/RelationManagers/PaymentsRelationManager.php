@@ -2,9 +2,16 @@
 
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use App\Enums\PaymentStatus;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,21 +23,21 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('value')
+        return $schema
+            ->components([
+                TextInput::make('value')
                     ->required()
                     ->numeric()
                     ->prefix('Rp')
                     ->maxLength(255),
-                Forms\Components\ToggleButtons::make('status')
+                ToggleButtons::make('status')
                     ->options(PaymentStatus::class)
                     ->default(PaymentStatus::VERIFIED)
                     ->inline()
                     ->required(),
-                Forms\Components\Textarea::make('note')
+                Textarea::make('note')
             ])->columns(1);
     }
 
@@ -39,22 +46,22 @@ class PaymentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('value')
             ->columns([
-                Tables\Columns\TextColumn::make('value')
+                TextColumn::make('value')
                     ->money('IDR'),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge(),
-                Tables\Columns\TextColumn::make('note')
+                TextColumn::make('note')
                     ->wrap(),
-                Tables\Columns\TextColumn::make('verificator.name'),
-                Tables\Columns\TextColumn::make('verified_at')
+                TextColumn::make('verificator.name'),
+                TextColumn::make('verified_at')
                     ->dateTime(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
+                CreateAction::make()
+                    ->mutateDataUsing(function (array $data): array {
                         $data['verified_at'] = now();
                         $data['verified_by_id'] = auth()->id();
 
@@ -62,19 +69,19 @@ class PaymentsRelationManager extends RelationManager
                     })
                     ->after(fn (Component $livewire) => $livewire->dispatch('payment-updated')),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
+            ->recordActions([
+                EditAction::make()
+                    ->mutateDataUsing(function (array $data): array {
                         $data['verified_at'] = now();
                         $data['verified_by_id'] = auth()->id();
 
                         return $data;
                     })
                     ->after(fn (Component $livewire) => $livewire->dispatch('payment-updated')),
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->after(fn (Component $livewire) => $livewire->dispatch('payment-updated')),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),

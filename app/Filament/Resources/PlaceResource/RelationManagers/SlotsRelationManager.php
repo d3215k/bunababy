@@ -2,9 +2,14 @@
 
 namespace App\Filament\Resources\PlaceResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
 use App\Enums\SlotPart;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,14 +20,14 @@ class SlotsRelationManager extends RelationManager
 {
     protected static string $relationship = 'slots';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('time')
+        return $schema
+            ->components([
+                TextInput::make('time')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\ToggleButtons::make('part')
+                ToggleButtons::make('part')
                     ->options(SlotPart::class)
                     ->inline()
                     ->required(),
@@ -36,21 +41,21 @@ class SlotsRelationManager extends RelationManager
             ->defaultGroup('part')
             ->paginated(false)
             ->columns([
-                Tables\Columns\TextColumn::make('time'),
+                TextColumn::make('time'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
                 // Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),

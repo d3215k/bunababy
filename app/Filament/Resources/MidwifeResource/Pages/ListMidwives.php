@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\MidwifeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -13,7 +14,7 @@ class ListMidwives extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->visible(fn () => auth()->user()->isOwner),
         ];
     }

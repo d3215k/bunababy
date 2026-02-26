@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\RoomFactory;
 use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Room extends Model
 {
-    /** @use HasFactory<\Database\Factories\RoomFactory> */
+    /** @use HasFactory<RoomFactory> */
     use HasFactory;
 
     protected static function booted(): void

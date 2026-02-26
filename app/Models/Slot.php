@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\SlotFactory;
 use App\Enums\SlotPart;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Slot extends Model
 {
-    /** @use HasFactory<\Database\Factories\SlotFactory> */
+    /** @use HasFactory<SlotFactory> */
     use HasFactory;
 
     public $timestamps = false;

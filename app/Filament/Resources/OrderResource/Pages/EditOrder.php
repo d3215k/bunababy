@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
 use App\Enums\PlaceType;
 use App\Filament\Resources\OrderResource;
 use App\Models\Address;
@@ -33,21 +36,21 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('chat')
+            Action::make('chat')
                 ->label('Chat WA')
                 ->icon('heroicon-o-chat-bubble-bottom-center-text')
                 ->url('https://wa.me/' . FormatNumber::toWaIndo($this->getRecord()->customer->phone) . '?text=Halo+' . urlencode($this->getRecord()->customer->name))
                 ->openUrlInNewTab(),
-            Actions\Action::make('invoice')
+            Action::make('invoice')
                 ->label('Cetak Invoice')
                 ->icon('heroicon-o-printer')
                 ->url(route('order.invoice.print', $this->getRecord()))
                 ->openUrlInNewTab(),
-            Actions\Action::make('customer')
+            Action::make('customer')
                 ->url(route('filament.admin.resources.customers.edit', $this->getRecord()->customer))
                 ->icon('heroicon-o-user'),
-            Actions\ActionGroup::make([
-                Actions\DeleteAction::make(),
+            ActionGroup::make([
+                DeleteAction::make(),
             ]),
         ];
     }

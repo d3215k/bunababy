@@ -2,12 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\KecamatanResource\RelationManagers\MidwivesRelationManager;
+use App\Filament\Resources\KecamatanResource\Pages\ListKecamatans;
+use App\Filament\Resources\KecamatanResource\Pages\CreateKecamatan;
+use App\Filament\Resources\KecamatanResource\Pages\EditKecamatan;
 use App\Filament\Resources\KecamatanResource\Pages;
 use App\Filament\Resources\KecamatanResource\RelationManagers;
 use App\Models\Kecamatan;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -21,29 +31,29 @@ class KecamatanResource extends Resource
 
     protected static ?string $model = Kecamatan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-map';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-map';
 
-    protected static ?string $navigationGroup = 'Sistem';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
 
     protected static ?string $modelLabel = 'Wilayah';
 
     protected static ?int $navigationSort = 3;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('kabupaten_id')
+        return $schema
+            ->components([
+                Select::make('kabupaten_id')
                     ->relationship('kabupaten', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('distance')
+                TextInput::make('distance')
                     ->numeric()
                     ->default(0)
                     ->suffix(' km'),
-                Forms\Components\Toggle::make('active')
+                Toggle::make('active')
                     ->required(),
             ])
             ->disabled(fn () => !auth()->user()->isOwner);
@@ -53,25 +63,25 @@ class KecamatanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('distance')
+                TextColumn::make('distance')
                     ->numeric()
                     ->sortable()
                     ->suffix(' km'),
-                Tables\Columns\TextColumn::make('kabupaten.name')
+                TextColumn::make('kabupaten.name')
                     ->numeric(),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -81,16 +91,16 @@ class KecamatanResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\MidwivesRelationManager::class,
+            MidwivesRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListKecamatans::route('/'),
-            'create' => Pages\CreateKecamatan::route('/create'),
-            'edit' => Pages\EditKecamatan::route('/{record}/edit'),
+            'index' => ListKecamatans::route('/'),
+            'create' => CreateKecamatan::route('/create'),
+            'edit' => EditKecamatan::route('/{record}/edit'),
         ];
     }
 }

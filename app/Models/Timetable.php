@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TimetableFactory;
 use App\Enums\TimetableType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Timetable extends Model
 {
-    /** @use HasFactory<\Database\Factories\TimetableFactory> */
+    /** @use HasFactory<TimetableFactory> */
     use HasFactory;
 
     protected $casts = [

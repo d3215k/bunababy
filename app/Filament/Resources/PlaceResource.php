@@ -2,6 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\PlaceResource\RelationManagers\SlotsRelationManager;
+use App\Filament\Resources\PlaceResource\RelationManagers\TreatmentsRelationManager;
+use App\Filament\Resources\PlaceResource\Pages\ListPlaces;
+use App\Filament\Resources\PlaceResource\Pages\CreatePlace;
+use App\Filament\Resources\PlaceResource\Pages\EditPlace;
 use App\Enums\PlaceType;
 use App\Filament\Resources\PlaceResource\Pages;
 use App\Filament\Resources\PlaceResource\RelationManagers;
@@ -9,7 +21,6 @@ use App\Models\Place;
 use App\Models\Scopes\ActiveScope;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,9 +33,9 @@ class PlaceResource extends Resource
 
     protected static ?string $model = Place::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static ?string $navigationGroup = 'Sistem';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
 
     protected static ?string $modelLabel = 'Tempat';
 
@@ -36,25 +47,25 @@ class PlaceResource extends Resource
             ->withoutGlobalScope(ActiveScope::class);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('desc')
+                TextInput::make('desc')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('transport_duration')
+                TextInput::make('transport_duration')
                     ->required()
                     ->numeric()
                     ->default(0)
                     ->suffix(' menit'),
-                Forms\Components\ToggleButtons::make('type')
+                ToggleButtons::make('type')
                     ->options(PlaceType::class)
                     ->inline(),
-                Forms\Components\Toggle::make('active')
+                Toggle::make('active')
                     ->required(),
             ])
             ->disabled(fn () => !auth()->user()->isOwner);
@@ -64,28 +75,28 @@ class PlaceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('desc')
+                TextColumn::make('desc')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('type')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('transport_duration')
+                TextColumn::make('transport_duration')
                     ->numeric()
                     ->sortable()
                     ->suffix(' menit'),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -98,17 +109,17 @@ class PlaceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\SlotsRelationManager::class,
-            RelationManagers\TreatmentsRelationManager::class,
+            SlotsRelationManager::class,
+            TreatmentsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPlaces::route('/'),
-            'create' => Pages\CreatePlace::route('/create'),
-            'edit' => Pages\EditPlace::route('/{record}/edit'),
+            'index' => ListPlaces::route('/'),
+            'create' => CreatePlace::route('/create'),
+            'edit' => EditPlace::route('/{record}/edit'),
         ];
     }
 }

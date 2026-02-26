@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\PriceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Price extends Model
 {
-    /** @use HasFactory<\Database\Factories\PriceFactory> */
+    /** @use HasFactory<PriceFactory> */
     use HasFactory;
 
     public function treatment(): BelongsTo

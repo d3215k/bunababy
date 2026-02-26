@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\MidwifeFactory;
 use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Midwife extends Model
 {
-    /** @use HasFactory<\Database\Factories\MidwifeFactory> */
+    /** @use HasFactory<MidwifeFactory> */
     use HasFactory;
 
     protected static function booted(): void

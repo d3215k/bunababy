@@ -2,12 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\KabupatenResource\RelationManagers\KecamatansRelationManager;
+use App\Filament\Resources\KabupatenResource\Pages\ListKabupatens;
+use App\Filament\Resources\KabupatenResource\Pages\CreateKabupaten;
+use App\Filament\Resources\KabupatenResource\Pages\EditKabupaten;
 use App\Filament\Resources\KabupatenResource\Pages;
 use App\Filament\Resources\KabupatenResource\RelationManagers;
 use App\Models\Kabupaten;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -21,21 +30,21 @@ class KabupatenResource extends Resource
 
     protected static ?string $model = Kabupaten::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Sistem';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
 
     protected static ?string $navigationParentItem = 'Wilayah';
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Toggle::make('active')
+                Toggle::make('active')
                     ->required(),
             ])
             ->disabled(fn () => !auth()->user()->isOwner);
@@ -45,22 +54,22 @@ class KabupatenResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('kecamatans_count')
+                TextColumn::make('kecamatans_count')
                     ->counts('kecamatans')
                     ->label('Jumlah Kecamatan'),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -70,16 +79,16 @@ class KabupatenResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\KecamatansRelationManager::class,
+            KecamatansRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListKabupatens::route('/'),
-            'create' => Pages\CreateKabupaten::route('/create'),
-            'edit' => Pages\EditKabupaten::route('/{record}/edit'),
+            'index' => ListKabupatens::route('/'),
+            'create' => CreateKabupaten::route('/create'),
+            'edit' => EditKabupaten::route('/{record}/edit'),
         ];
     }
 }

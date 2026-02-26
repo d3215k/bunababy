@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\KecamatanFactory;
 use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kecamatan extends Model
 {
-    /** @use HasFactory<\Database\Factories\KecamatanFactory> */
+    /** @use HasFactory<KecamatanFactory> */
     use HasFactory;
 
     protected $casts = [

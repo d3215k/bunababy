@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PlaceFactory;
 use App\Enums\PlaceType;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\SortScope;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Place extends Model
 {
-    /** @use HasFactory<\Database\Factories\PlaceFactory> */
+    /** @use HasFactory<PlaceFactory> */
     use HasFactory;
 
     protected $casts = [

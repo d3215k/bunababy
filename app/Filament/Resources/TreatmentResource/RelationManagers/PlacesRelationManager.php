@@ -2,10 +2,16 @@
 
 namespace App\Filament\Resources\TreatmentResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use App\Models\Place;
 use App\Models\Price;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -17,11 +23,11 @@ class PlacesRelationManager extends RelationManager
 {
     protected static string $relationship = 'places';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('treatment_id')
+        return $schema
+            ->components([
+                Select::make('treatment_id')
                     ->options(function () {
                         $ids = Price::query()
                             ->where('treatment_id', $this->getOwnerRecord()->id)
@@ -35,7 +41,7 @@ class PlacesRelationManager extends RelationManager
                     ->preload()
                     ->required()
                     ->hiddenOn('edit'),
-                Forms\Components\TextInput::make('amount')
+                TextInput::make('amount')
                     ->prefix('Rp')
                     ->required()
                     ->numeric(),
@@ -47,8 +53,8 @@ class PlacesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('amount')
+                TextColumn::make('name'),
+                TextColumn::make('amount')
                     ->default(0)
                     ->money('idr'),
             ])
@@ -56,7 +62,7 @@ class PlacesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->using(function (array $data) {
                         $record = Price::create([
                             'place_id' => $data['treatment_id'],
@@ -68,8 +74,8 @@ class PlacesRelationManager extends RelationManager
                     })
                 ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->using(function (Model $record, array $data) {
                         // dd($record);
                         $record = Price::query()
@@ -84,7 +90,7 @@ class PlacesRelationManager extends RelationManager
                         return $record;
                     })
                     ->visible(fn () => auth()->user()->isOwner),
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->using(function (Model $record) {
                         // dd($record);
                         $record = Price::query()
@@ -96,7 +102,7 @@ class PlacesRelationManager extends RelationManager
                     })
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ]);
     }

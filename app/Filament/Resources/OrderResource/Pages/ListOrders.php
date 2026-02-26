@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Tabs\Tab;
 use App\Enums\OrderStatus;
 use App\Filament\Exports\OrderExporter;
 use App\Filament\Resources\OrderResource;
@@ -9,7 +11,6 @@ use App\Models\Order;
 use Filament\Actions;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 
 class ListOrders extends ListRecords
@@ -24,7 +25,7 @@ class ListOrders extends ListRecords
                 ->formats([
                     ExportFormat::Xlsx,
                 ]),
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 

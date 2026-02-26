@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Midwife;
 
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\Width;
 use App\Enums\MidwifeOrderStatus;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
@@ -12,8 +15,6 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Get;
-use Filament\Support\Enums\MaxWidth;
 use Livewire\Component;
 
 class FinishOrderComponent extends Component implements HasForms, HasActions
@@ -35,8 +36,8 @@ class FinishOrderComponent extends Component implements HasForms, HasActions
                 'status' => $this->order->status,
                 'report' => $this->order->report,
             ])
-            ->form([
-                Forms\Components\ToggleButtons::make('status')
+            ->schema([
+                ToggleButtons::make('status')
                     ->options(MidwifeOrderStatus::class)
                     ->inline()
                     ->required()
@@ -66,6 +67,6 @@ class FinishOrderComponent extends Component implements HasForms, HasActions
             )
             // ->slideOver()
             ->closeModalByClickingAway(false)
-            ->modalWidth(MaxWidth::Medium);
+            ->modalWidth(Width::Medium);
     }
 }

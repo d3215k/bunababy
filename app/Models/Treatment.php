@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TreatmentFactory;
 use App\Models\Scopes\ActiveScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Treatment extends Model
 {
-    /** @use HasFactory<\Database\Factories\TreatmentFactory> */
+    /** @use HasFactory<TreatmentFactory> */
     use HasFactory;
 
     protected $casts = [

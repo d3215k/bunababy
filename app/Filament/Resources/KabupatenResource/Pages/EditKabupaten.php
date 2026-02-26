@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\KabupatenResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\KabupatenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -13,7 +14,7 @@ class EditKabupaten extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->visible(fn () => auth()->user()->isOwner),
         ];
     }

@@ -2,14 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Pages\Enums\SubNavigationPosition;
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\MidwifeResource\Pages\EditMidwife;
+use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeTimetables;
+use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeTreatments;
+use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeKecamatan;
+use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeUser;
+use App\Filament\Resources\MidwifeResource\Pages\ListMidwives;
+use App\Filament\Resources\MidwifeResource\Pages\CreateMidwife;
 use App\Filament\Resources\MidwifeResource\Pages;
 use App\Filament\Resources\MidwifeResource\RelationManagers;
 use App\Models\Midwife;
 use App\Models\Scopes\ActiveScope;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,15 +36,15 @@ class MidwifeResource extends Resource
 
     protected static ?string $model = Midwife::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Admin';
+    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
 
     protected static ?string $modelLabel = 'Bidan';
 
     protected static ?int $navigationSort = 11;
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    protected static ?\Filament\Pages\Enums\SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function getEloquentQuery(): Builder
     {
@@ -39,26 +52,26 @@ class MidwifeResource extends Resource
             ->withoutGlobalScope(ActiveScope::class);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('email')
+                TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('phone')
+                TextInput::make('phone')
                     ->tel()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('ig')
+                TextInput::make('ig')
                     ->maxLength(255)
                     ->label('Instagram')
                     ->prefix('https://www.instagram.com/'),
-                Forms\Components\FileUpload::make('photo'),
-                Forms\Components\Toggle::make('active')
+                FileUpload::make('photo'),
+                Toggle::make('active')
                     ->required(),
             ])
             ->disabled(fn () => !auth()->user()->isOwner);
@@ -68,29 +81,29 @@ class MidwifeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('treatments_count')
+                TextColumn::make('treatments_count')
                     ->counts('treatments')
                     ->label('Z'),
-                Tables\Columns\TextColumn::make('treatments.name')
+                TextColumn::make('treatments.name')
                     ->wrap(),
-                Tables\Columns\TextColumn::make('kecamatans_count')
+                TextColumn::make('kecamatans_count')
                     ->counts('kecamatans')
                     ->label('Z'),
-                Tables\Columns\TextColumn::make('kecamatans.name')
+                TextColumn::make('kecamatans.name')
                     ->wrap(),
-                Tables\Columns\IconColumn::make('active')
+                IconColumn::make('active')
                     ->boolean()
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -107,24 +120,24 @@ class MidwifeResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\EditMidwife::class,
-            Pages\ManageMidwifeTimetables::class,
-            Pages\ManageMidwifeTreatments::class,
-            Pages\ManageMidwifeKecamatan::class,
-            Pages\ManageMidwifeUser::class,
+            EditMidwife::class,
+            ManageMidwifeTimetables::class,
+            ManageMidwifeTreatments::class,
+            ManageMidwifeKecamatan::class,
+            ManageMidwifeUser::class,
         ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMidwives::route('/'),
-            'create' => Pages\CreateMidwife::route('/create'),
-            'edit' => Pages\EditMidwife::route('/{record}/edit'),
-            'timetables' => Pages\ManageMidwifeTimetables::route('/{record}/timetables'),
-            'treatments' => Pages\ManageMidwifeTreatments::route('/{record}/treatments'),
-            'kecamatans' => Pages\ManageMidwifeKecamatan::route('/{record}/kecamatans'),
-            'user' => Pages\ManageMidwifeUser::route('/{record}/user'),
+            'index' => ListMidwives::route('/'),
+            'create' => CreateMidwife::route('/create'),
+            'edit' => EditMidwife::route('/{record}/edit'),
+            'timetables' => ManageMidwifeTimetables::route('/{record}/timetables'),
+            'treatments' => ManageMidwifeTreatments::route('/{record}/treatments'),
+            'kecamatans' => ManageMidwifeKecamatan::route('/{record}/kecamatans'),
+            'user' => ManageMidwifeUser::route('/{record}/user'),
         ];
     }
 }

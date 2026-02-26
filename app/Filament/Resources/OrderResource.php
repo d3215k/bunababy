@@ -2,6 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Placeholder;
+use App\Support\FormatCurrency;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\OrderResource\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\Resources\OrderResource\Pages\CreateOrder;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\TimePicker;
 use App\Enums\OrderStatus;
 use App\Enums\PlaceType;
 use App\Filament\Resources\OrderResource\Pages;
@@ -24,9 +45,6 @@ use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -45,9 +63,9 @@ class OrderResource extends Resource
 
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-ticket';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static ?string $navigationGroup = 'Admin';
+    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
 
     protected static ?int $navigationSort = 2;
 
@@ -56,121 +74,121 @@ class OrderResource extends Resource
         return parent::getEloquentQuery();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Group::make()
+        return $schema
+            ->components([
+                Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Customer')
+                        Section::make('Customer')
                             ->collapsible()
                             ->schema(static::getDetailsFormSchema()),
-                        Forms\Components\Section::make('Skrining')
+                        Section::make('Skrining')
                             ->heading('Skrining')
                             ->collapsed()
                             ->schema([
                                 static::getScreeningRepeater()
                             ]),
-                        Forms\Components\Section::make('Waktu dan Tempat')
+                        Section::make('Waktu dan Tempat')
                             ->collapsed()
                             ->schema(static::getPlaceFormSchema()),
-                        Forms\Components\Section::make('Items')
+                        Section::make('Items')
                             ->heading('Treatment')
                             ->collapsed()
                             ->schema([
                                 static::getItemsRepeater()
                             ]),
-                        Forms\Components\Section::make('Report')
+                        Section::make('Report')
                             ->heading('Report Bidan')
                             ->collapsed()
                             ->schema([
                                 static::getReportRepeater()
                             ]),
-                        Forms\Components\Section::make('Adjustment')
+                        Section::make('Adjustment')
                             ->collapsed()
                             ->schema([
-                                Forms\Components\TextInput::make('adjustment_amount')
+                                TextInput::make('adjustment_amount')
                                     ->numeric(),
-                                Forms\Components\Textarea::make('adjustment_name'),
-                                Forms\Components\TextInput::make('transport')
+                                Textarea::make('adjustment_name'),
+                                TextInput::make('transport')
                                     ->numeric(),
                             ]),
                         ])
                         ->columnSpan(['lg' => fn (?Order $record) => $record === null ? 3 : 2]),
 
-                Forms\Components\Group::make()
+                Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Summary')
+                        Section::make('Summary')
                             ->collapsible()
                             ->schema([
-                                Forms\Components\Placeholder::make('placeholder.midwife.name')
+                                Placeholder::make('placeholder.midwife.name')
                                     ->label('Bidan')
                                     ->content(fn (Order $record): ?string => $record->midwife->name),
-                                Forms\Components\Placeholder::make('placeholder.place.name')
+                                Placeholder::make('placeholder.place.name')
                                     ->label('Tempat')
                                     ->content(fn (Order $record): ?string => $record->place->name),
-                                Forms\Components\Placeholder::make('placeholder.place.room.name')
+                                Placeholder::make('placeholder.place.room.name')
                                     ->hidden(fn (Order $record) => $record->place->type === PlaceType::HOMECARE)
                                     ->label('Ruangan')
                                     ->content(fn (Order $record): ?string => $record->room->name ?? ''),
-                                Forms\Components\Placeholder::make('placeholder.time')
+                                Placeholder::make('placeholder.time')
                                     ->label('Waktu')
                                     ->content(fn (Order $record): ?string => $record->getLongDateTime()),
-                                Forms\Components\Placeholder::make('placeholder.customer.name')
+                                Placeholder::make('placeholder.customer.name')
                                     ->label('Customer')
                                     ->content(fn (Order $record): ?string => $record->customer->name),
-                                Forms\Components\Placeholder::make('placeholder.address.full')
+                                Placeholder::make('placeholder.address.full')
                                     ->hidden(fn (Order $record) => $record->place->type === PlaceType::CLINIC)
                                     ->label('Alamat')
                                     ->content(fn (Order $record): ?string => $record->address->fullAddress  . ' (' . $record->address->kecamatan->distance . ' km)'),
-                                Forms\Components\Placeholder::make('placeholder.treatments')
+                                Placeholder::make('placeholder.treatments')
                                     ->label('Treatment')
                                     ->content(fn (Order $record): ?string => $record->listTreatmentsWithFamily),
-                                Forms\Components\Placeholder::make('placeholder.customer.phone')
+                                Placeholder::make('placeholder.customer.phone')
                                     ->label('Phone')
                                     ->content(fn (Order $record): ?string => $record->customer->phone),
                             ]),
 
-                        Forms\Components\Section::make('Layanan')
+                        Section::make('Layanan')
                             ->collapsed()
                             ->schema([
-                                Forms\Components\Placeholder::make('placeholder.service.finished_at')
+                                Placeholder::make('placeholder.service.finished_at')
                                     ->label('Selesai Treatment')
                                     // ->hidden(fn (Order $record) => $record->status->value <= OrderStatus::FINISHED->value)
                                     ->content(fn (Order $record): ?string => $record->finished_at?->format('d M Y H:i') ?? '-'),
                             ]),
 
-                        Forms\Components\Section::make('Pembayaran')
+                        Section::make('Pembayaran')
                             ->collapsed()
                             ->schema([
-                                Forms\Components\Placeholder::make('placeholder.payment.treatment')
+                                Placeholder::make('placeholder.payment.treatment')
                                     ->label('Total Treatment')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->price)),
-                                Forms\Components\Placeholder::make('placeholder.payment.transport')
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->price)),
+                                Placeholder::make('placeholder.payment.transport')
                                     ->label('Transport')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->transport)),
-                                Forms\Components\Placeholder::make('placeholder.payment.adjustment')
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->transport)),
+                                Placeholder::make('placeholder.payment.adjustment')
                                     ->label(fn (Order $record): ?string => $record->adjustment_name ?? 'Adjustment')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->adjustment_amount)),
-                                Forms\Components\Placeholder::make('placeholder.payment.grand_total')
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->adjustment_amount)),
+                                Placeholder::make('placeholder.payment.grand_total')
                                     ->label('Total Tagihan')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->getGrandTotal())),
-                                Forms\Components\Placeholder::make('placeholder.payment.verified')
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->getGrandTotal())),
+                                Placeholder::make('placeholder.payment.verified')
                                     ->label('Total Pembayaran')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->getVerifiedPayments())),
-                                Forms\Components\Placeholder::make('placeholder.payment.remaining')
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->getVerifiedPayments())),
+                                Placeholder::make('placeholder.payment.remaining')
                                     ->label('Sisa Pembayaran')
-                                    ->content(fn (Order $record): ?string => \App\Support\FormatCurrency::rupiah($record->getRemainingPayment())),
+                                    ->content(fn (Order $record): ?string => FormatCurrency::rupiah($record->getRemainingPayment())),
                             ]),
 
-                        Forms\Components\Section::make('Admin')
+                        Section::make('Admin')
                             ->collapsed()
                             ->schema([
-                                Forms\Components\Placeholder::make('placeholder.admin.created_by')
+                                Placeholder::make('placeholder.admin.created_by')
                                     ->label('Admin Input')
                                     // ->hidden(fn (Order $record) => $record->status->value <= OrderStatus::FINISHED->value)
                                     ->content(fn (Order $record): ?string => $record->createdBy?->name ?? '-'),
-                                Forms\Components\Placeholder::make('placeholder.admin.last_created_by')
+                                Placeholder::make('placeholder.admin.last_created_by')
                                     ->label('Update terakhir oleh')
                                     // ->hidden(fn (Order $record) => $record->status->value <= OrderStatus::FINISHED->value)
                                     ->content(fn (Order $record): ?string => $record->updatedBy?->name ?? '-'),
@@ -185,14 +203,14 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('date')
+                TextColumn::make('date')
                     ->label('Tanggal & Waktu')
                     ->date('D, d M Y')
                     ->sortable()
@@ -200,72 +218,72 @@ class OrderResource extends Resource
                     ,
                 // Tables\Columns\TextColumn::make('start_time'),
                 // Tables\Columns\TextColumn::make('end_time'),
-                Tables\Columns\TextColumn::make('customer.name')
+                TextColumn::make('customer.name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('place.name')
+                TextColumn::make('place.name')
                     ->label('Tempat')
                     ->description(fn (Order $record) => $record->place->type === PlaceType::CLINIC ? $record->room->name : $record->address->kecamatan->name)
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('midwife.name')
+                TextColumn::make('midwife.name')
                     ->label('Bidan')
                     ->description(fn (Order $record) => $record->listTreatments)
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price')
+                TextColumn::make('price')
                     ->label('Harga')
                     ->money('IDR')
                     ->sortable()
                     ->searchable()
                     ->summarize(Sum::make()),
-                Tables\Columns\TextColumn::make('transport')
+                TextColumn::make('transport')
                     ->money('IDR')
                     ->sortable()
                     ->summarize(Sum::make()),
-                Tables\Columns\TextColumn::make('verified_payments')
+                TextColumn::make('verified_payments')
                     ->label('Sudah Bayar')
                     ->money('idr')
                     ->getStateUsing(fn (Order $record) => $record->getVerifiedPayments()),
-                Tables\Columns\TextColumn::make('remaining_payments')
+                TextColumn::make('remaining_payments')
                     ->label('Belum Bayar')
                     ->money('idr')
                     ->getStateUsing(fn (Order $record) => $record->getRemainingPayment()),
-                Tables\Columns\TextColumn::make('adjustment_amount')
+                TextColumn::make('adjustment_amount')
                     ->money('IDR')
                     ->sortable()
                     ->searchable()
                     // ->summarize(Sum::make())
                     ,
-                Tables\Columns\TextColumn::make('createdBy.name')
+                TextColumn::make('createdBy.name')
                     ->label('Admin')
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('place_id')
+                SelectFilter::make('place_id')
                     ->relationship('place', 'name')
                     ->searchable()
                     ->preload()
                     ->label('Tempat')
                     ->multiple()
                     ->columnSpan(1),
-                Tables\Filters\SelectFilter::make('midwife_id')
+                SelectFilter::make('midwife_id')
                     ->relationship('midwife', 'name')
                     ->searchable()
                     ->preload()
                     ->multiple()
                     ->label('Bidan')
                     ->columnSpan(1),
-                Tables\Filters\SelectFilter::make('created_by')
+                SelectFilter::make('created_by')
                     ->relationship('createdBy', 'name')
                     ->searchable()
                     ->preload()
                     ->multiple()
                     ->label('Admin')
                     ->columnSpan(1),
-                Tables\Filters\Filter::make('date')
-                    ->form([
-                        Forms\Components\DatePicker::make('date_from')
+                Filter::make('date')
+                    ->schema([
+                        DatePicker::make('date_from')
                             ->label('Dari Tanggal'),
-                        Forms\Components\DatePicker::make('date_until')
+                        DatePicker::make('date_until')
                             ->label('Sampai Tanggal'),
                     ])
                     ->query(function (Builder $query, array $data) {
@@ -281,10 +299,10 @@ class OrderResource extends Resource
                     })->columnSpan(3)->columns(2),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ])
             ->groups([
@@ -299,7 +317,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\PaymentsRelationManager::class,
+            PaymentsRelationManager::class,
         ];
     }
 
@@ -313,22 +331,22 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'index' => ListOrders::route('/'),
+            'create' => CreateOrder::route('/create'),
+            'edit' => EditOrder::route('/{record}/edit'),
         ];
     }
 
     public static function getDetailsFormSchema(): array
     {
         return [
-            Forms\Components\ToggleButtons::make('status')
+            ToggleButtons::make('status')
                 ->required()
                 ->options(OrderStatus::class)
                 ->inline()
                 ->columnSpanFull()
                 ->hiddenOn('create'),
-            Forms\Components\Select::make('customer_id')
+            Select::make('customer_id')
                 ->relationship('customer', 'name')
                 ->live()
                 // ->preload()
@@ -340,21 +358,21 @@ class OrderResource extends Resource
                     $set('customer_name', Customer::where('id', $state)->value('name'));
                 })
                 ->createOptionForm([
-                    Forms\Components\TextInput::make('name')
+                    TextInput::make('name')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('email')
+                    TextInput::make('email')
                         ->email()
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\DatePicker::make('dob')
+                    DatePicker::make('dob')
                         ->label('Tanggal Lahir'),
-                    Forms\Components\TextInput::make('phone')
+                    TextInput::make('phone')
                         ->tel()
                         ->maxLength(255),
                 ])
                 ,
-            Forms\Components\Select::make('address_id')
+            Select::make('address_id')
                 ->label('Alamat')
                 ->relationship(
                     'address',
@@ -371,18 +389,18 @@ class OrderResource extends Resource
                 ->required()
                 ->preload()
                 ->createOptionForm([
-                    Forms\Components\TextInput::make('label')
+                    TextInput::make('label')
                         ->placeholder('ex: Rumah')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('address')
+                    TextInput::make('address')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('desa')
+                    TextInput::make('desa')
                         ->label('Desa/Kelurahan')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\Select::make('kecamatan_id')
+                    Select::make('kecamatan_id')
                         ->label('Kecamatan')
                         ->options(fn () => Kecamatan::pluck('name', 'id')->toArray())
                         ->required()
@@ -408,15 +426,15 @@ class OrderResource extends Resource
     {
         return Repeater::make('screening')
             ->schema([
-                Forms\Components\Textarea::make('keluhan')
+                Textarea::make('keluhan')
                     ->label('Keluhan')
                     ->required(),
-                Forms\Components\ToggleButtons::make('penyakit_menular')
+                ToggleButtons::make('penyakit_menular')
                     ->label('Penyakit Menular')
                     ->boolean()
                     ->inline()
                     ->required(),
-                Forms\Components\ToggleButtons::make('riwayat_imunisasi')
+                ToggleButtons::make('riwayat_imunisasi')
                     ->label('Riwayat Imunisasi')
                     ->boolean()
                     ->inline()
@@ -431,24 +449,24 @@ class OrderResource extends Resource
     {
         return Repeater::make('report')
             ->schema([
-                Forms\Components\ToggleButtons::make('payment')
+                ToggleButtons::make('payment')
                     ->label('Payment')
                     ->options(['Transfer', 'Cash'])
                     ->inline()
                     ->required(),
-                Forms\Components\ToggleButtons::make('treatments_match')
+                ToggleButtons::make('treatments_match')
                     ->label('Treatments')
                     ->boolean('Sesuai', 'Ada Perubahan')
                     ->inline()
                     ->live()
                     ->required(),
-                Forms\Components\Textarea::make('treatments_changed')
+                Textarea::make('treatments_changed')
                     ->label('Perubahan Treatments')
                     ->required()
                     ->reactive()
                     ->hidden(fn (Get $get) => $get('treatments_match') ?? true),
 
-                Forms\Components\ToggleButtons::make('repeat')
+                ToggleButtons::make('repeat')
                     ->boolean()
                     ->label('Repeat')
                     ->inline()
@@ -462,7 +480,7 @@ class OrderResource extends Resource
                         $set('repeat_date_5', null);
                     })
                     ->required(),
-                Forms\Components\ToggleButtons::make('repeat_count')
+                ToggleButtons::make('repeat_count')
                     ->label('Jumlah Repeat')
                     ->inline()
                     ->options([
@@ -472,44 +490,44 @@ class OrderResource extends Resource
                     ->reactive()
                     ->hidden(fn (Get $get) => !$get('repeat'))
                     ->required(),
-                Forms\Components\DatePicker::make('repeat_date_1')
+                DatePicker::make('repeat_date_1')
                     ->label('Tanggal Repeat #1')
                     ->required()
                     ->reactive()
                     ->visible(fn (Get $get) => (int) $get('repeat_count') >= 1),
-                Forms\Components\DatePicker::make('repeat_date_2')
+                DatePicker::make('repeat_date_2')
                     ->label('Tanggal Repeat #2')
                     ->required()
                     ->reactive()
                     ->visible(fn (Get $get) => (int) $get('repeat_count') >= 2),
-                Forms\Components\DatePicker::make('repeat_date_3')
+                DatePicker::make('repeat_date_3')
                     ->label('Tanggal Repeat #3')
                     ->required()
                     ->reactive()
                     ->visible(fn (Get $get) => (int) $get('repeat_count') >= 3),
-                Forms\Components\DatePicker::make('repeat_date_4')
+                DatePicker::make('repeat_date_4')
                     ->label('Tanggal Repeat #4')
                     ->required()
                     ->reactive()
                     ->visible(fn (Get $get) => (int) $get('repeat_count') >= 4),
-                Forms\Components\DatePicker::make('repeat_date_5')
+                DatePicker::make('repeat_date_5')
                     ->label('Tanggal Repeat $5')
                     ->required()
                     ->reactive()
                     ->visible(fn (Get $get) => (int) $get('repeat_count') >= 5),
 
-                Forms\Components\ToggleButtons::make('up_selling')
+                ToggleButtons::make('up_selling')
                     ->label('Up Selling')
                     ->boolean()
                     ->inline()
                     ->required(),
-                Forms\Components\ToggleButtons::make('cross_selling')
+                ToggleButtons::make('cross_selling')
                     ->label('Cross Selling')
                     ->boolean()
                     ->inline()
                     ->live()
                     ->required(),
-                Forms\Components\TextInput::make('cross_selling_amount')
+                TextInput::make('cross_selling_amount')
                     ->label('Jumlah Jual')
                     ->numeric()
                     ->minValue(0)
@@ -526,7 +544,7 @@ class OrderResource extends Resource
     public static function getPlaceFormSchema(): array
     {
         return [
-            Forms\Components\ToggleButtons::make('place_id')
+            ToggleButtons::make('place_id')
                 ->label('Tempat')
                 ->options(fn () => Place::pluck('name', 'id')->toArray())
                 ->inline()
@@ -547,7 +565,7 @@ class OrderResource extends Resource
                     $set('midwife_name', null);
                 })
                 ->columnSpanFull(),
-            Forms\Components\ToggleButtons::make('room_id')
+            ToggleButtons::make('room_id')
                 ->label('Ruangan')
                 ->options(fn (Get $get) => Room::where('place_id', $get('place_id'))->pluck('name', 'id')->toArray())
                 ->inline()
@@ -565,7 +583,7 @@ class OrderResource extends Resource
                     $set('midwife_id', null);
                 })
                 ->columnSpanFull(),
-            Forms\Components\ToggleButtons::make('midwife_id')
+            ToggleButtons::make('midwife_id')
                 ->label('Bidan')
                 ->options(function (Get $get) {
                     $address = Address::find($get('address_id'));
@@ -589,7 +607,7 @@ class OrderResource extends Resource
                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
                     $set('midwife_name', Midwife::find($state)->name);
                 }),
-            Forms\Components\DatePicker::make('date')
+            DatePicker::make('date')
                 ->minDate(today())
                 ->native(false)
                 ->disabledDates(function (Get $get) {
@@ -626,7 +644,7 @@ class OrderResource extends Resource
                 //     return false;
                 // })
                 ->columnSpanFull(),
-            Forms\Components\TimePicker::make('start_time')
+            TimePicker::make('start_time')
                 ->label('Waktu Mulai')
                 ->datalist(fn (Get $get) => Slot::where('place_id', $get('place_id'))->pluck('time')->toArray())
                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
@@ -639,7 +657,7 @@ class OrderResource extends Resource
                 ->required()
                 ->hidden(fn (Get $get) => !$get('date'))
                 ->columnSpanFull(),
-            Forms\Components\TimePicker::make('end_time')
+            TimePicker::make('end_time')
                 ->label('Waktu Akhir')
                 ->disabled()
                 ->reactive()
@@ -653,7 +671,7 @@ class OrderResource extends Resource
     {
         return Repeater::make('treatments')
             ->schema([
-                Forms\Components\Select::make('treatment_id')
+                Select::make('treatment_id')
                     ->label('Treatment')
                     // ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                     // ->options(Treatment::pluck('name', 'id')->toArray())
@@ -704,7 +722,7 @@ class OrderResource extends Resource
                             )
                         );
                     }),
-                Forms\Components\Select::make('family_id')
+                Select::make('family_id')
                     ->label('Pasien')
                     ->options(function (Get $get) {
                         return $get('../../customer_id') ? Family::where('customer_id', $get('../../customer_id'))->pluck('name', 'id')->toArray() : [];
@@ -719,7 +737,7 @@ class OrderResource extends Resource
                     ->preload()
                     ->required()
                     ->searchable(),
-                Forms\Components\TextInput::make('treatment_price')
+                TextInput::make('treatment_price')
                     ->label('Harga')
                     ->prefix('Rp')
                     ->disabled()
@@ -728,7 +746,7 @@ class OrderResource extends Resource
                     ->reactive()
                     ->required()
                     ,
-                Forms\Components\TextInput::make('treatment_duration')
+                TextInput::make('treatment_duration')
                     ->label('Durasi')
                     ->suffix(' menit')
                     ->disabled()

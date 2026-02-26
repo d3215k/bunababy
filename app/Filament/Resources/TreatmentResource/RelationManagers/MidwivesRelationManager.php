@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\TreatmentResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\AttachAction;
+use Filament\Actions\Action;
+use Filament\Actions\DetachAction;
 use App\Models\Midwife;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,10 +19,10 @@ class MidwivesRelationManager extends RelationManager
 {
     protected static string $relationship = 'midwives';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -28,24 +32,24 @@ class MidwivesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                TextColumn::make('name'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->actions([
-                Tables\Actions\Action::make('Lihat Bidan')
+            ->recordActions([
+                Action::make('Lihat Bidan')
                     ->icon('heroicon-o-user')
                     ->url(fn (Midwife $record) => route('filament.admin.resources.midwives.treatments', $record)),
-                Tables\Actions\DetachAction::make()
+                DetachAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ]);
     }

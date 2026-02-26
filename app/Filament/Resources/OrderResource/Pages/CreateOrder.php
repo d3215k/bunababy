@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Wizard;
+use Exception;
+use Throwable;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Utilities\Get;
 use App\Enums\PlaceType;
 use App\Exceptions\NoSlotException;
 use App\Filament\Resources\OrderResource;
@@ -12,13 +20,7 @@ use App\Models\Order;
 use App\Models\Place;
 use App\Support\DateTime;
 use Filament\Actions;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Wizard;
-use Filament\Forms\Components\Wizard\Step;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\CreateRecord\Concerns\HasWizard;
@@ -39,10 +41,10 @@ class CreateOrder extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return parent::form($form)
-            ->schema([
+        return parent::form($schema)
+            ->components([
                 Wizard::make($this->getSteps())
                     // ->startOnStep($this->getStartStep())
                     // ->cancelAction($this->getCancelFormAction())
@@ -88,7 +90,7 @@ class CreateOrder extends CreateRecord
             $isAvailable = Order::isAvailable($data, $place->type);
 
             if (!$isAvailable) {
-                throw new \Exception('Slot reservasi tersedia tidak cukup!');
+                throw new Exception('Slot reservasi tersedia tidak cukup!');
             }
 
             $order = Order::create($data);
@@ -98,7 +100,7 @@ class CreateOrder extends CreateRecord
         } catch (NoSlotException $e) {
             DB::rollBack();
             return Notification::make()->title('Whoops!')->body($e->getMessage())->danger()->send();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             report($th->getMessage());
             DB::rollBack();
             return Notification::make()->title('Whoops!')->body('Ada yang salah')->danger()->send();

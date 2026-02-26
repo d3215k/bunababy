@@ -2,46 +2,47 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
 use App\Settings\GeneralSettings;
 use App\Traits\EnsureOnlyOwnerCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
 
 class ManageGeneralSettings extends SettingsPage
 {
     use EnsureOnlyOwnerCanAccess;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static string $settings = GeneralSettings::class;
 
-    protected static ?string $navigationGroup = 'Sistem';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
 
     protected static ?string $title = 'Pengaturan';
 
     protected static ?int $navigationSort = 99;
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('desc')
+                TextInput::make('desc')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('address')
+                TextInput::make('address')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('ig')
+                TextInput::make('ig')
                     ->label('ID Instagram')
                     ->prefix('https://instagram.com/')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('phone')
+                TextInput::make('phone')
                     ->tel()
                     ->required(),
             ]);

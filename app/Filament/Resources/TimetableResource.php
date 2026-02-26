@@ -2,6 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\TimetableResource\Pages\ListTimetables;
+use App\Filament\Resources\TimetableResource\Pages\CreateTimetable;
+use App\Filament\Resources\TimetableResource\Pages\EditTimetable;
 use App\Enums\PlaceType;
 use App\Enums\TimetableType;
 use App\Filament\Resources\TimetableResource\Pages;
@@ -10,8 +22,6 @@ use App\Models\Place;
 use App\Models\Timetable;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,39 +35,39 @@ class TimetableResource extends Resource
 
     protected static ?string $model = Timetable::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $modelLabel = 'Penjadwalan';
 
-    protected static ?string $navigationGroup = 'Admin';
+    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
 
     protected static ?int $navigationSort = 2;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('midwife_id')
+        return $schema
+            ->components([
+                Select::make('midwife_id')
                     ->relationship('midwife', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
-                Forms\Components\DatePicker::make('date')
+                DatePicker::make('date')
                     ->minDate(now())
                     ->native(false)
                     ->required(),
-                Forms\Components\ToggleButtons::make('type')
+                ToggleButtons::make('type')
                     ->required()
                     ->reactive()
                     ->options(TimetableType::class)
                     ->inline(),
-                Forms\Components\Select::make('place_id')
+                Select::make('place_id')
                     ->label('Tempat')
                     ->options(fn () => Place::where('type', PlaceType::CLINIC)->pluck('name', 'id'))
                     ->visible(fn (Get $get): bool => TimetableType::tryFrom($get('type')) === TimetableType::CLINIC)
                     ->required()
                     ->reactive(),
-                Forms\Components\Textarea::make('note')
+                Textarea::make('note')
                     ->maxLength(255),
             ]);
     }
@@ -66,31 +76,31 @@ class TimetableResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('midwife.name')
+                TextColumn::make('midwife.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('date')
+                TextColumn::make('date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('type')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('place.name')
+                TextColumn::make('place.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('note')
+                TextColumn::make('note')
                     ->searchable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\Action::make('Lihat Bidan')
+            ->recordActions([
+                Action::make('Lihat Bidan')
                     ->icon('heroicon-o-user')
                     ->url(fn (Timetable $timetable) => route('filament.admin.resources.midwives.timetables', $timetable->midwife_id)),
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ]);
     }
@@ -105,9 +115,9 @@ class TimetableResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTimetables::route('/'),
-            'create' => Pages\CreateTimetable::route('/create'),
-            'edit' => Pages\EditTimetable::route('/{record}/edit'),
+            'index' => ListTimetables::route('/'),
+            'create' => CreateTimetable::route('/create'),
+            'edit' => EditTimetable::route('/{record}/edit'),
         ];
     }
 }

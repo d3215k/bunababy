@@ -1,8 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* @tailwind variants; */
+/* Tailwind CSS v4 Entry Point (2026-02-26) */
+/* These directives tell Tailwind to inject its base, component, and utility styles */
+/* INFO: v4 syntax is same as v3 but some advanced features changed */
+@import "tailwindcss";
 
+/* Filament v5 CSS imports - Required for styling */
+/* Required by all components */
+@import "../../vendor/filament/support/resources/css/index.css";
+
+/* Required by actions and tables */
+@import "../../vendor/filament/actions/resources/css/index.css";
+
+/* Required by actions, forms and tables */
+@import "../../vendor/filament/forms/resources/css/index.css";
+
+/* Required by actions and infolists */
+@import "../../vendor/filament/infolists/resources/css/index.css";
+
+/* Required by notifications */
+@import "../../vendor/filament/notifications/resources/css/index.css";
+
+/* Required by actions, infolists, forms, schemas and tables */
+@import "../../vendor/filament/schemas/resources/css/index.css";
+
+/* Required by tables */
+@import "../../vendor/filament/tables/resources/css/index.css";
+
+/* Required by widgets */
+@import "../../vendor/filament/widgets/resources/css/index.css";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../app/Livewire/**/*.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@variant dark (&:where(.dark, .dark *));
+
+/* Custom scrollbar styling - unchanged from v3 */
+/* DEBUG: If scrollbar styling breaks, check WebKit vendor support */
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;

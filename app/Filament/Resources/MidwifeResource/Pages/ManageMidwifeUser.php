@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use App\Enums\UserType;
 use App\Filament\Resources\MidwifeResource;
 use App\Models\Midwife;
@@ -10,7 +13,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
@@ -27,7 +29,7 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
 
     protected static string $relationship = 'user';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {
@@ -51,11 +53,11 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
                     'email' => $record->email,
                     'name' => $record->name,
                 ])
-                ->form([
-                    Forms\Components\TextInput::make('email')
+                ->schema([
+                    TextInput::make('email')
                         ->label('Email')
                         ->required(),
-                    Forms\Components\TextInput::make('name')
+                    TextInput::make('name')
                         ->label('Name')
                         ->required(),
                 ])
@@ -91,11 +93,11 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
         $this->fillForm();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('email')
+        return $schema
+            ->components([
+                TextInput::make('email')
                 ->required()
                 ->unique(
                     table: 'users',
@@ -107,7 +109,7 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
                     'required' => 'Email wajib diisi.'
                 ])
                 ->maxLength(255),
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
                 ->required()
                 ->maxLength(255),
             ]);
@@ -118,9 +120,9 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('email'),
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('email'),
+                TextColumn::make('name'),
+                TextColumn::make('type')
                     ->badge(),
             ])
             ->filters([
@@ -130,12 +132,12 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
                 // Tables\Actions\CreateAction::make(),
                 // Tables\Actions\AssociateAction::make(),
             ])
-            ->actions([
+            ->recordActions([
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DissociateAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DissociateBulkAction::make(),
                 //     Tables\Actions\DeleteBulkAction::make(),

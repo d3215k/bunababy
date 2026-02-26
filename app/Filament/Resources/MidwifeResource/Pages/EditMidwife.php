@@ -12,7 +12,7 @@ class EditMidwife extends EditRecord
 
     protected static ?string $title = 'Biodata';
 
-    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-pencil-square';
 
     protected function getHeaderActions(): array
     {

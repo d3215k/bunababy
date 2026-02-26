@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\FamilyFactory;
 use App\Enums\FamilyType;
 use App\Support\DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Family extends Model
 {
-    /** @use HasFactory<\Database\Factories\FamilyFactory> */
+    /** @use HasFactory<FamilyFactory> */
     use HasFactory;
 
     protected $casts = [
