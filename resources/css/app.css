@@ -3,35 +3,6 @@
 /* INFO: v4 syntax is same as v3 but some advanced features changed */
 @import "tailwindcss";
 
-/* Comprehensive safelist for Filament pages with custom Livewire components */
-/* Calendar grid positioning (1-62) */
-@source inline("row-start-{1..62}");
-@source inline("col-start-{1..62}");
-@source inline("row-span-{1..62}");
-
-/* Color safelist - all color utilities needed for components */
-@source inline("text-{slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900}");
-@source inline("bg-{slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900}");
-@source inline("border-{slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900}");
-
-/* Layout & spacing utilities */
-@source inline("grid grid-cols-{1..12} grid-cols-7");
-@source inline("overflow-{auto,hidden,scroll,x-auto,x-hidden,x-scroll,y-auto,y-hidden,y-scroll}");
-@source inline("max-h-{xs,sm,md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}");
-@source inline("sticky top-0 z-{10,20,30,40,50}");
-@source inline("flex flex-col flex-row");
-@source inline("items-center justify-center justify-between justify-end justify-start");
-@source inline("gap-{1,2,3,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96}");
-@source inline("p-{0,1,2,3,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32}");
-@source inline("m-{0,1,2,3,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32}");
-@source inline("px-{2,3,4,5,6,7,8}");
-@source inline("py-{1,2,3,4,5}");
-
-/* Typography */
-@source inline("text-{xs,sm,base,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}");
-@source inline("font-{light,normal,medium,semibold,bold,extrabold}");
-@source inline("border border-{b,t,l,r}");
-
 /* Filament v5 CSS imports - Required for styling */
 /* Required by all components */
 @import "../../vendor/filament/support/resources/css/index.css";
