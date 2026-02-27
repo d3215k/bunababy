@@ -241,13 +241,13 @@ class ClinicCalendarComponent extends Component
         // dd($orders);
 
         $bg = [
-            OrderStatus::CANCELLED->value => 'background-color: rgba(248, 113, 113, 0.2); border: 1px solid rgba(185, 28, 28, 0.1);',
-            OrderStatus::PENDING->value => 'background-color: rgba(248, 113, 113, 0.2); border: 1px solid rgba(185, 28, 28, 0.1);',
-            OrderStatus::BOOKED->value => 'background-color: rgba(74, 222, 128, 0.2); border: 1px solid rgba(21, 128, 61, 0.1);',
-            OrderStatus::ON_HOLD->value => 'background-color: rgba(250, 204, 21, 0.2); border: 1px solid rgba(161, 98, 7, 0.1);',
-            OrderStatus::IN_SERVICE->value => 'background-color: rgba(96, 165, 250, 0.2); border: 1px solid rgba(29, 78, 216, 0.1);',
-            OrderStatus::FINISHED->value => 'background-color: rgba(244, 114, 182, 0.2); border: 1px solid rgba(190, 24, 93, 0.1);',
-            OrderStatus::COMPLETED->value => 'background-color: rgba(96, 165, 250, 0.2); border: 1px solid rgba(29, 78, 216, 0.1);',
+            OrderStatus::CANCELLED->value => 'background-color: rgba(248, 113, 113, 0.5);',
+            OrderStatus::PENDING->value => 'background-color: rgba(248, 113, 113, 0.5);',
+            OrderStatus::BOOKED->value => 'background-color: rgba(74, 222, 128, 0.5);',
+            OrderStatus::ON_HOLD->value => 'background-color: rgba(250, 204, 21, 0.5);',
+            OrderStatus::IN_SERVICE->value => 'background-color: rgba(96, 165, 250, 0.5);',
+            OrderStatus::FINISHED->value => 'background-color: rgba(244, 114, 182, 0.5);',
+            OrderStatus::COMPLETED->value => 'background-color: rgba(96, 165, 250, 0.5);',
         ];
 
         // dd($this->rowStart);
