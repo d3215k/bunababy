@@ -1,9 +1,9 @@
 <div>
-    <div class="flex flex-col overflow-hidden bg-white rounded shadow-sm">
-        <div class="w-full py-3 pl-6 pr-3 bg-gray-50 sm:flex sm:justify-between sm:items-center">
+    <div class="flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200">
+        <div class="w-full py-3 pl-6 pr-3 sm:flex sm:justify-between sm:items-center">
             <div class="flex items-center">
                 <h3 class="font-semibold">
-                    Kalender Klinik
+                    Klinik
                 </h3>
             </div>
             <div class="flex items-center gap-4 mt-3 text-sm text-center sm:mt-0 sm:text-right">
