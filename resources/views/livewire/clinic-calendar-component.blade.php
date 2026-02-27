@@ -7,7 +7,7 @@
                 </h3>
             </div>
             <div class="flex items-center gap-4 mt-3 text-sm text-center sm:mt-0 sm:text-right">
-                <input wire:model="selectedDay" type="date"
+                <input wire:model.live="selectedDay" type="date"
                     class="block w-full px-2 py-1 text-sm border border-gray-200 rounded focus:border-brand-100 focus:ring-0 focus:ring-brand-50" />
                 <div class="inline-flex">
                     <button wire:click="prevDay" type="button"
