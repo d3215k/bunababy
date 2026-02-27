@@ -71,7 +71,17 @@ class OrderResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        return parent::getEloquentQuery()
+            ->with([
+                'customer:id,name',
+                'place:id,name,type',
+                'room:id,name',
+                'address:id,kecamatan_id',
+                'address.kecamatan:id,name',
+                'midwife:id,name',
+                'createdBy:id,name',
+                'verifiedPayments:id,order_id,value,status',
+            ]);
     }
 
     public static function form(Schema $schema): Schema
