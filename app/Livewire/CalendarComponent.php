@@ -272,12 +272,13 @@ class CalendarComponent extends Component
 
         $ordersQuery = Order::query()
             ->whereDate('date', $this->selectedDay)
-            ->with(
+            ->with([
                 'customer:id,name',
+                'address:id,kecamatan_id',
                 'address.kecamatan:id,name',
                 'place:id,name,type,transport_duration',
                 'room:id,name',
-            )
+            ])
             ->select([
                 'id',
                 'customer_id',
