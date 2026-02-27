@@ -1,6 +1,32 @@
-@import "../../../../vendor/filament/filament/resources/css/theme.css";
+@import "tailwindcss";
+@import "../../../../vendor/filament/filament/resources/css/index.css";
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/**/*.blade.php';
 @source '../../../../resources/js/**/*.js';
+
+@source inline("row-span-{1..62}");
+@source inline("row-start-{1..62}");
+@source inline("col-start-{1..62}");
+
+@source inline("grid-cols-[70px,repeat(1,170px)]");
+@source inline("grid-cols-[70px,repeat(2,170px)]");
+@source inline("grid-cols-[70px,repeat(3,170px)]");
+@source inline("grid-cols-[70px,repeat(4,170px)]");
+@source inline("grid-cols-[70px,repeat(5,170px)]");
+@source inline("grid-cols-[70px,repeat(6,170px)]");
+@source inline("grid-cols-[70px,repeat(7,170px)]");
+@source inline("grid-cols-[70px,repeat(8,170px)]");
+@source inline("grid-cols-[70px,repeat(9,170px)]");
+@source inline("grid-cols-[70px,repeat(10,170px)]");
+@source inline("grid-cols-[70px,repeat(11,170px)]");
+@source inline("grid-cols-[70px,repeat(12,170px)]");
+@source inline("grid-cols-[70px,repeat(13,170px)]");
+@source inline("grid-cols-[70px,repeat(14,170px)]");
+@source inline("grid-cols-[70px,repeat(15,170px)]");
+@source inline("grid-cols-[70px,repeat(16,170px)]");
+@source inline("grid-cols-[70px,repeat(17,170px)]");
+@source inline("grid-cols-[70px,repeat(18,170px)]");
+@source inline("grid-cols-[70px,repeat(19,170px)]");
+@source inline("grid-cols-[70px,repeat(20,170px)]");

@@ -17,7 +17,11 @@ class PlaceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->name(),
+            'desc' => $this->faker->sentence(),
+            'type' => $this->faker->randomElement([1, 2]),
+            'transport_duration' => $this->faker->numberBetween(0, 60),
+            'active' => true,
         ];
     }
 }
