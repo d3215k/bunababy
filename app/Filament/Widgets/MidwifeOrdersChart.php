@@ -6,8 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Midwife;
 use App\Models\Order;
 use Filament\Widgets\ChartWidget;
-use Flowframe\Trend\Trend;
-use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Facades\DB;
 
 class MidwifeOrdersChart extends ChartWidget
 {
@@ -15,104 +14,100 @@ class MidwifeOrdersChart extends ChartWidget
 
     protected static ?int $sort = 3;
 
+    protected ?string $pollingInterval = '60s';
+
     protected string $color = 'info';
 
     protected $colors = [
-            [
-                'backgroundColor' => '#ef4444',
-                'borderColor' => '#fca5a5',
-            ],
-            [
-                'backgroundColor' => '#f59e0b',
-                'borderColor' => '#fcd34d',
-            ],
-            [
-                'backgroundColor' => '#84cc16',
-                'borderColor' => '#bef264',
-            ],
-            [
-                'backgroundColor' => '#10b981',
-                'borderColor' => '#6ee7b7',
-            ],
-            [
-                'backgroundColor' => '#06b6d4',
-                'borderColor' => '#67e8f9',
-            ],
-            [
-                'backgroundColor' => '#6366f1',
-                'borderColor' => '#a5b4fc',
-            ],
-            [
-                'backgroundColor' => '#d946ef',
-                'borderColor' => '#f0abfc',
-            ],
-            [
-                'backgroundColor' => '#f43f5e',
-                'borderColor' => '#fda4af',
-            ]
-        ];
+        [
+            'backgroundColor' => '#ef4444',
+            'borderColor' => '#fca5a5',
+        ],
+        [
+            'backgroundColor' => '#f59e0b',
+            'borderColor' => '#fcd34d',
+        ],
+        [
+            'backgroundColor' => '#84cc16',
+            'borderColor' => '#bef264',
+        ],
+        [
+            'backgroundColor' => '#10b981',
+            'borderColor' => '#6ee7b7',
+        ],
+        [
+            'backgroundColor' => '#06b6d4',
+            'borderColor' => '#67e8f9',
+        ],
+        [
+            'backgroundColor' => '#6366f1',
+            'borderColor' => '#a5b4fc',
+        ],
+        [
+            'backgroundColor' => '#d946ef',
+            'borderColor' => '#f0abfc',
+        ],
+        [
+            'backgroundColor' => '#f43f5e',
+            'borderColor' => '#fda4af',
+        ],
+    ];
 
     protected function getData(): array
     {
-        $midwives = Midwife::select('id', 'name')->get();
+        $midwives = Midwife::query()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        // Get all completed orders for this month in a single query
+        $ordersData = Order::query()
+            ->select(
+                'midwife_id',
+                DB::raw('DATE(date) as order_date'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('status', OrderStatus::COMPLETED)
+            ->whereBetween('date', [
+                now()->startOfMonth(),
+                now()->endOfMonth(),
+            ])
+            ->whereIn('midwife_id', $midwives->pluck('id'))
+            ->groupBy('midwife_id', 'order_date')
+            ->get()
+            ->groupBy('midwife_id');
+
+        // Generate all dates in the month
+        $dates = collect();
+        $start = now()->startOfMonth();
+        $end = now()->endOfMonth();
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $dates->push($date->format('Y-m-d'));
+        }
 
         $datasets = [];
 
         foreach ($midwives as $i => $midwife) {
-            $data = Trend::query(
-                    Order::query()
-                        ->where('midwife_id', $midwife->id)
-                        ->where('status', OrderStatus::COMPLETED)
-                )
-                ->dateColumn('date')
-                ->between(
-                    start: now()->startOfMonth(),
-                    end: now()->endOfMonth(),
-                )
-                ->perDay()
-                ->count();
+            $midwifeOrders = $ordersData->get($midwife->id, collect())
+                ->keyBy('order_date');
+
+            $data = $dates->map(function ($date) use ($midwifeOrders) {
+                return $midwifeOrders->get($date)?->total ?? 0;
+            });
 
             $datasets[] = [
                 'label' => $midwife->name,
-                'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
-                'backgroundColor' => $this->colors[$i]['backgroundColor'],
-                'borderColor' => $this->colors[$i]['borderColor'],
+                'data' => $data->values(),
+                'backgroundColor' => $this->colors[$i % count($this->colors)]['backgroundColor'],
+                'borderColor' => $this->colors[$i % count($this->colors)]['borderColor'],
             ];
         }
 
-        $data = Trend::query(Order::query())
-            ->dateColumn('date')
-            ->between(
-                start: now()->startOfMonth(),
-                end: now()->endOfMonth(),
-            )
-            ->perDay()
-            ->count();
-
         return [
             'datasets' => $datasets,
-            'labels' => $data->map(fn (TrendValue $value) => $value->date),
+            'labels' => $dates->map(fn ($date) => \Carbon\Carbon::parse($date)->format('M d')),
         ];
-
-        // $activeFilter = $this->filter;
-
-        // return [
-        //     'datasets' => [
-        //         [
-        //             'label' => 'Bidan Febri',
-        //             'data' => [5, 2, 6, 2, 9, 12, 15, 24, 21, 15, 27, 32],
-        //             'backgroundColor' => $this->colors[0]['backgroundColor'],
-        //             'borderColor' => $this->colors[0]['borderColor'],
-        //         ],
-        //         [
-        //             'label' => 'Bidan Ririn',
-        //             'data' => [3, 4, 6, 8, 12, 15, 18, 24, 21, 15, 27, 32],
-        //             'backgroundColor' => $this->colors[1]['backgroundColor'],
-        //             'borderColor' => $this->colors[1]['borderColor'],
-        //         ],
-        //     ],
-        //     'labels' => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-        // ];
     }
 
     protected function getType(): string

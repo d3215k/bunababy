@@ -12,6 +12,8 @@ class StatsOverview extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    protected ?string $pollingInterval = '60s';
+
     public function getColumns(): int
     {
         return 4;
@@ -19,11 +21,28 @@ class StatsOverview extends BaseWidget
 
     protected function getStats(): array
     {
+        $reservationsToday = Order::whereDate('date', today())
+            ->where('status', '!=', OrderStatus::CANCELLED)
+            ->count();
+
+        $completedToday = Order::whereDate('date', today())
+            ->where('status', OrderStatus::COMPLETED)
+            ->count();
+
+        $completedThisMonth = Order::whereMonth('date', today()->month)
+            ->whereYear('date', today()->year)
+            ->where('status', OrderStatus::COMPLETED)
+            ->count();
+
+        $newCustomersThisMonth = Customer::whereMonth('created_at', today()->month)
+            ->whereYear('created_at', today()->year)
+            ->count();
+
         return [
-            Stat::make('Reservations Today ', Order::whereDate('date', today())->count()),
-            Stat::make('Completed Today ', Order::whereDate('date', today())->where('status', OrderStatus::COMPLETED)->count()),
-            Stat::make('Completed this month', Order::whereMonth('date', today()->month)->where('status', OrderStatus::COMPLETED)->count()),
-            Stat::make('New Customer this month', Customer::whereMonth('created_at', today()->month)->count()),
+            Stat::make('Reservations Today ', $reservationsToday),
+            Stat::make('Completed Today ', $completedToday),
+            Stat::make('Completed this month', $completedThisMonth),
+            Stat::make('New Customer this month', $newCustomersThisMonth),
         ];
     }
 }
