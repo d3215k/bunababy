@@ -1,9 +1,3 @@
 <x-filament-panels::page>
-    @if ($calendarType === 'midwife')
-        @livewire('midwife-calendar-component')
-    @endif
-
-    @if ($calendarType === 'clinic')
-        @livewire('clinic-calendar-component')
-    @endif
+    @livewire('calendar-component', ['type' => $calendarType], key('calendar-'.$calendarType))
 </x-filament-panels::page>

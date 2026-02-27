@@ -5,16 +5,17 @@ namespace App\Filament\Pages;
 use App\Traits\EnsureOnlyAdminCanAccess;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
+use Livewire\Attributes\Url;
 
 class CalendarPage extends Page
 {
     use EnsureOnlyAdminCanAccess;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-calendar';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
 
     protected string $view = 'filament.pages.calendar-page';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
+    protected static string|\UnitEnum|null $navigationGroup = 'Admin';
 
     protected static ?string $modelLabel = 'Pembayaran';
 
@@ -22,6 +23,7 @@ class CalendarPage extends Page
 
     protected static ?int $navigationSort = 1;
 
+    #[Url(as: 'type')]
     public $calendarType = 'midwife';
 
     protected function getHeaderActions(): array
