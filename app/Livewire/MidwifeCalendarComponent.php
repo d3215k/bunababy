@@ -6,8 +6,6 @@ use App\Enums\OrderStatus;
 use App\Enums\PlaceType;
 use App\Models\Midwife;
 use App\Models\Order;
-use App\Models\Room;
-use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -15,9 +13,13 @@ use Livewire\Component;
 class MidwifeCalendarComponent extends Component
 {
     public $date;
+
     public $titles;
+
     public $colStart;
+
     public $rowStart;
+
     public $times;
 
     #[Url()]
@@ -41,7 +43,7 @@ class MidwifeCalendarComponent extends Component
             'midwives' => collect([]),
         ]);
 
-        $i = 2 ;
+        $i = 2;
         foreach ($midwives as $midwife) {
             $this->colStart['midwives']->put($midwife->id, $i);
             $this->titles->push(['col-start' => $i, 'name' => $midwife->name]);
@@ -227,13 +229,13 @@ class MidwifeCalendarComponent extends Component
             ->get();
 
         $bg = [
-            OrderStatus::CANCELLED->value => 'bg-red-400/20 border border-red-700/10',
-            OrderStatus::PENDING->value => 'bg-red-400/20 border border-red-700/10',
-            OrderStatus::BOOKED->value => 'bg-green-400/20 border border-green-700/10',
-            OrderStatus::ON_HOLD->value => 'bg-yellow-400/20 border border-yellown-700/10',
-            OrderStatus::IN_SERVICE->value => 'bg-blue-400/20 border border-blue-700/10',
-            OrderStatus::FINISHED->value => 'bg-pink-400/20 border border-pink-700/10',
-            OrderStatus::COMPLETED->value => 'bg-blue-400/20 border border-blue-700/10',
+            OrderStatus::CANCELLED->value => 'background-color: rgba(248, 113, 113, 0.2); border: 1px solid rgba(185, 28, 28, 0.1);',
+            OrderStatus::PENDING->value => 'background-color: rgba(248, 113, 113, 0.2); border: 1px solid rgba(185, 28, 28, 0.1);',
+            OrderStatus::BOOKED->value => 'background-color: rgba(74, 222, 128, 0.2); border: 1px solid rgba(21, 128, 61, 0.1);',
+            OrderStatus::ON_HOLD->value => 'background-color: rgba(250, 204, 21, 0.2); border: 1px solid rgba(161, 98, 7, 0.1);',
+            OrderStatus::IN_SERVICE->value => 'background-color: rgba(96, 165, 250, 0.2); border: 1px solid rgba(29, 78, 216, 0.1);',
+            OrderStatus::FINISHED->value => 'background-color: rgba(244, 114, 182, 0.2); border: 1px solid rgba(190, 24, 93, 0.1);',
+            OrderStatus::COMPLETED->value => 'background-color: rgba(96, 165, 250, 0.2); border: 1px solid rgba(29, 78, 216, 0.1);',
         ];
 
         // dd($this->rowStart);
@@ -245,19 +247,19 @@ class MidwifeCalendarComponent extends Component
             $rowStart = $this->rowStart[$order->startDateTime->format('H:i')];
 
             $rowSpan = (int) round($order->startDateTime
-                    ->diffInMinutes(
-                        $order->endDateTime->subMinutes($order->place->transport_duration)
-                    ) / 15);
+                ->diffInMinutes(
+                    $order->endDateTime->subMinutes($order->place->transport_duration)
+                ) / 15);
 
             $schedules->push([
-                'classes' => "{$bg[$order->status->value]} col-start-{$colStart} row-start-{$rowStart} row-span-{$rowSpan} ",
+                'classes' => "{$bg[$order->status->value]} grid-column-start: {$colStart}; grid-row: {$rowStart} / span {$rowSpan};",
                 'id' => $order->id,
                 'customer_name' => $order->customer->name,
                 'time' => $order->getLongTime(),
                 'treatments' => $order->listTreatments,
                 'status' => $order->status->getLabel(),
                 'finished_at' => $order->finished_at,
-                'place' => $order->place->type === PlaceType::HOMECARE ? ($order->place->name . ', ' . $order->address->kecamatan->name ?? '-') : ($order->place->name . ', ' . $order->room->name ?? '-'),
+                'place' => $order->place->type === PlaceType::HOMECARE ? ($order->place->name.', '.$order->address->kecamatan->name ?? '-') : ($order->place->name.', '.$order->room->name ?? '-'),
             ]);
         }
 
