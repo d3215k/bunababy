@@ -31,10 +31,10 @@
                             @isset($order->address->share_location)
                             <div class="mt-2">
                                 <div class="text-sm font-medium leading-6 text-gray-950 dark:text-white">Sharloc</div>
-                                    <div><a target="_blank" href="{{ $order->address->share_location }}">{{ $order->address->share_location }}</a></div>
-                                </div>
+                                <div><a target="_blank" href="{{ $order->address->share_location }}">{{ $order->address->share_location }}</a></div>
                             </div>
                             @endisset
+                        </div>
                     @endif
 
                     @if ($order->place->type === \App\Enums\PlaceType::CLINIC)
