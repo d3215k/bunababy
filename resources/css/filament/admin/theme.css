@@ -5,28 +5,3 @@
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/**/*.blade.php';
 @source '../../../../resources/js/**/*.js';
-
-@source inline("row-span-{1..62}");
-@source inline("row-start-{1..62}");
-@source inline("col-start-{1..62}");
-
-@source inline("grid-cols-[70px,repeat(1,210px)]");
-@source inline("grid-cols-[70px,repeat(2,210px)]");
-@source inline("grid-cols-[70px,repeat(3,210px)]");
-@source inline("grid-cols-[70px,repeat(4,210px)]");
-@source inline("grid-cols-[70px,repeat(5,210px)]");
-@source inline("grid-cols-[70px,repeat(6,210px)]");
-@source inline("grid-cols-[70px,repeat(7,210px)]");
-@source inline("grid-cols-[70px,repeat(8,210px)]");
-@source inline("grid-cols-[70px,repeat(9,210px)]");
-@source inline("grid-cols-[70px,repeat(10,210px)]");
-@source inline("grid-cols-[70px,repeat(11,210px)]");
-@source inline("grid-cols-[70px,repeat(12,210px)]");
-@source inline("grid-cols-[70px,repeat(13,210px)]");
-@source inline("grid-cols-[70px,repeat(14,210px)]");
-@source inline("grid-cols-[70px,repeat(15,210px)]");
-@source inline("grid-cols-[70px,repeat(16,210px)]");
-@source inline("grid-cols-[70px,repeat(17,210px)]");
-@source inline("grid-cols-[70px,repeat(18,210px)]");
-@source inline("grid-cols-[70px,repeat(19,210px)]");
-@source inline("grid-cols-[70px,repeat(20,210px)]");
