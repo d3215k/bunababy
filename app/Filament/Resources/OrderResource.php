@@ -279,6 +279,8 @@ class OrderResource extends Resource
                     ->multiple()
                     ->label('Admin')
                     ->columnSpan(1),
+                SelectFilter::make('status')
+                    ->options(OrderStatus::class),
                 Filter::make('date')
                     ->schema([
                         DatePicker::make('date_from')
@@ -296,7 +298,7 @@ class OrderResource extends Resource
                                 $data['date_until'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
-                    })->columnSpan(3)->columns(2),
+                    })->columnSpan(2)->columns(2),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
             ->recordActions([
