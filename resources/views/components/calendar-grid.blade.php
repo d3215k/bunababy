@@ -19,12 +19,12 @@
     };
 @endphp
 
-<div style="overflow-x: auto;">
+<div style="overflow: auto; max-height: 520px;">
     <div
-        style="width: fit-content; display: grid; gap: 0; grid-template-columns: 70px repeat({{ $titles->count() }}, {{ $titleWidth }}px); grid-template-rows: {{ $headerHeight }}px repeat(61, {{ $rowHeight }}px); max-height: 520px; overflow-y: auto; grid-auto-rows: {{ $rowHeight }}px; scroll-padding-top: 2.5rem;">
+        style="width: fit-content; display: grid; gap: 0; grid-template-columns: 70px repeat({{ $titles->count() }}, {{ $titleWidth }}px); grid-template-rows: {{ $headerHeight }}px repeat(61, {{ $rowHeight }}px); grid-auto-rows: {{ $rowHeight }}px; scroll-padding-top: 2.5rem;">
         <!-- Calendar frame -->
         <div
-            style="position: sticky; top: 0; left: 0; z-index: 20; grid-column-start: 1; grid-row-start: 1; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; background-color: #ffffff; border-bottom: 1px solid #f1f5f9; background-clip: padding-box; color: #0f172a; height: {{ $headerHeight }}px; display: flex; align-items: center;">
+            style="position: sticky; top: 0; left: 0; z-index: 30; grid-column-start: 1; grid-row-start: 1; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; background-color: #ffffff; border-bottom: 1px solid #f1f5f9; background-clip: padding-box; color: #0f172a; height: {{ $headerHeight }}px; display: flex; align-items: center;">
         </div>
         @foreach ($titles as $item)
             <div
@@ -39,8 +39,9 @@
 
         @foreach ($times as $time)
             <div
-                style="grid-row-start: {{ $time['row-start'] }}; grid-column-start: 1; border-right: 1px solid #f1f5f9; font-size: 0.75rem; line-height: 1rem; padding: 0.375rem; padding-top: 0; text-align: right; color: #94a3b8; text-transform: uppercase; position: sticky; z-index: 20; left: 0; background-color: #ffffff; font-weight: 500; height: {{ $rowHeight }}px; width: {{ $timeWidth }}px; min-width: {{ $timeWidth }}px; max-width: {{ $timeWidth }}px; display: flex; align-items: flex-start; justify-content: flex-end;">
-                {{ $time['time'] }}</div>
+                style="position: sticky; top: 0; left: 0; z-index: 20; grid-row-start: {{ $time['row-start'] }}; grid-column-start: 1; border-right: 1px solid #f1f5f9; font-size: 0.75rem; line-height: 1rem; padding: 0.375rem; padding-top: 0; text-align: right; color: #94a3b8; text-transform: uppercase; background-color: #ffffff; font-weight: 500; height: {{ $rowHeight }}px; width: {{ $timeWidth }}px; min-width: {{ $timeWidth }}px; max-width: {{ $timeWidth }}px; display: flex; align-items: flex-start; justify-content: flex-end;">
+                {{ $time['time'] }}
+            </div>
 
             @for ($i = 2; $i <= $titles->count() + 1; $i++)
                 <div
