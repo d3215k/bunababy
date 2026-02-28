@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\TreatmentFactory;
 use App\Models\Scopes\ActiveScope;
+use Database\Factories\TreatmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,6 +53,8 @@ class Treatment extends Model
 
     public function places(): BelongsToMany
     {
-        return $this->belongsToMany(Place::class, 'prices');
+        return $this->belongsToMany(Place::class, 'prices', 'treatment_id', 'place_id')
+            ->withPivot('amount')
+            ->withTimestamps();
     }
 }

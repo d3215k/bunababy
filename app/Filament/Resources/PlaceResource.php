@@ -2,30 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
-use App\Filament\Resources\PlaceResource\RelationManagers\SlotsRelationManager;
-use App\Filament\Resources\PlaceResource\RelationManagers\TreatmentsRelationManager;
-use App\Filament\Resources\PlaceResource\Pages\ListPlaces;
+use App\Enums\PlaceType;
 use App\Filament\Resources\PlaceResource\Pages\CreatePlace;
 use App\Filament\Resources\PlaceResource\Pages\EditPlace;
-use App\Enums\PlaceType;
-use App\Filament\Resources\PlaceResource\Pages;
+use App\Filament\Resources\PlaceResource\Pages\ListPlaces;
 use App\Filament\Resources\PlaceResource\RelationManagers;
 use App\Models\Place;
 use App\Models\Scopes\ActiveScope;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PlaceResource extends Resource
 {
@@ -33,9 +28,9 @@ class PlaceResource extends Resource
 
     protected static ?string $model = Place::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-map-pin';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?string $modelLabel = 'Tempat';
 
@@ -68,7 +63,7 @@ class PlaceResource extends Resource
                 Toggle::make('active')
                     ->required(),
             ])
-            ->disabled(fn () => !auth()->user()->isOwner);
+            ->disabled(fn () => ! auth()->user()->isOwner);
     }
 
     public static function table(Table $table): Table
@@ -109,8 +104,8 @@ class PlaceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            SlotsRelationManager::class,
-            TreatmentsRelationManager::class,
+            RelationManagers\SlotsRelationManager::class,
+            RelationManagers\TreatmentsRelationManager::class,
         ];
     }
 

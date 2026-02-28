@@ -2,31 +2,12 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Placeholder;
-use App\Support\FormatCurrency;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\DatePicker;
-use Filament\Actions\EditAction;
-use App\Filament\Resources\OrderResource\RelationManagers\PaymentsRelationManager;
-use App\Filament\Resources\OrderResource\Pages\ListOrders;
-use App\Filament\Resources\OrderResource\Pages\CreateOrder;
-use App\Filament\Resources\OrderResource\Pages\EditOrder;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Forms\Components\TimePicker;
 use App\Enums\OrderStatus;
 use App\Enums\PlaceType;
-use App\Filament\Resources\OrderResource\Pages;
-use App\Filament\Resources\OrderResource\RelationManagers;
+use App\Filament\Resources\OrderResource\Pages\CreateOrder;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\Resources\OrderResource\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\OrderResource\Widgets\OrderOverview;
 use App\Models\Address;
 use App\Models\Customer;
@@ -40,22 +21,31 @@ use App\Models\Room;
 use App\Models\Slot;
 use App\Models\Timetable;
 use App\Models\Treatment;
+use App\Support\FormatCurrency;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Carbon\Carbon;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Tabs;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Livewire\Attributes\Computed;
 
 class OrderResource extends Resource
 {
@@ -63,9 +53,9 @@ class OrderResource extends Resource
 
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-ticket';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
+    protected static string|\UnitEnum|null $navigationGroup = 'Admin';
 
     protected static ?int $navigationSort = 2;
 
@@ -73,11 +63,11 @@ class OrderResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with([
-                'customer:id,name',
-                'place:id,name,type',
+                'customer:id,name,phone',
+                'place:id,name,type,transport_duration',
                 'room:id,name',
-                'address:id,kecamatan_id',
-                'address.kecamatan:id,name',
+                'address:id,customer_id,kecamatan_id,full_address',
+                'address.kecamatan:id,name,distance',
                 'midwife:id,name',
                 'createdBy:id,name',
                 'verifiedPayments:id,order_id,value,status',
@@ -97,7 +87,7 @@ class OrderResource extends Resource
                             ->heading('Skrining')
                             ->collapsed()
                             ->schema([
-                                static::getScreeningRepeater()
+                                static::getScreeningRepeater(),
                             ]),
                         Section::make('Waktu dan Tempat')
                             ->collapsed()
@@ -106,13 +96,13 @@ class OrderResource extends Resource
                             ->heading('Treatment')
                             ->collapsed()
                             ->schema([
-                                static::getItemsRepeater()
+                                static::getItemsRepeater(),
                             ]),
                         Section::make('Report')
                             ->heading('Report Bidan')
                             ->collapsed()
                             ->schema([
-                                static::getReportRepeater()
+                                static::getReportRepeater(),
                             ]),
                         Section::make('Adjustment')
                             ->collapsed()
@@ -123,8 +113,8 @@ class OrderResource extends Resource
                                 TextInput::make('transport')
                                     ->numeric(),
                             ]),
-                        ])
-                        ->columnSpan(['lg' => fn (?Order $record) => $record === null ? 3 : 2]),
+                    ])
+                    ->columnSpan(['lg' => fn (?Order $record) => $record === null ? 3 : 2]),
 
                 Group::make()
                     ->schema([
@@ -150,7 +140,7 @@ class OrderResource extends Resource
                                 Placeholder::make('placeholder.address.full')
                                     ->hidden(fn (Order $record) => $record->place->type === PlaceType::CLINIC)
                                     ->label('Alamat')
-                                    ->content(fn (Order $record): ?string => $record->address->fullAddress  . ' (' . $record->address->kecamatan->distance . ' km)'),
+                                    ->content(fn (Order $record): ?string => $record->address->fullAddress.' ('.$record->address->kecamatan->distance.' km)'),
                                 Placeholder::make('placeholder.treatments')
                                     ->label('Treatment')
                                     ->content(fn (Order $record): ?string => $record->listTreatmentsWithFamily),
@@ -224,8 +214,7 @@ class OrderResource extends Resource
                     ->label('Tanggal & Waktu')
                     ->date('D, d M Y')
                     ->sortable()
-                    ->description(fn (Order $record) => $record->getLongTime())
-                    ,
+                    ->description(fn (Order $record) => $record->getLongTime()),
                 // Tables\Columns\TextColumn::make('start_time'),
                 // Tables\Columns\TextColumn::make('end_time'),
                 TextColumn::make('customer.name')
@@ -261,8 +250,8 @@ class OrderResource extends Resource
                     ->money('IDR')
                     ->sortable()
                     ->searchable()
-                    // ->summarize(Sum::make())
-                    ,
+                // ->summarize(Sum::make())
+                ,
                 TextColumn::make('createdBy.name')
                     ->label('Admin')
                     ->sortable(),
@@ -382,8 +371,7 @@ class OrderResource extends Resource
                     TextInput::make('phone')
                         ->tel()
                         ->maxLength(255),
-                ])
-                ,
+                ]),
             Select::make('address_id')
                 ->label('Alamat')
                 ->relationship(
@@ -391,10 +379,10 @@ class OrderResource extends Resource
                     'label',
                     fn (Builder $query, Get $get) => $query
                         ->where('customer_id', $get('customer_id'))
-                        // ->with(['kecamatan.kabupaten'])
+                    // ->with(['kecamatan.kabupaten'])
                 )
                 ->getOptionLabelFromRecordUsing(fn (Address $record) => "{$record->label} {$record->full_address}")
-                ->hidden(fn (Get $get) => !$get('customer_id'))
+                ->hidden(fn (Get $get) => ! $get('customer_id'))
                 ->columnSpanFull()
                 ->reactive()
                 ->searchable()
@@ -500,7 +488,7 @@ class OrderResource extends Resource
                         2 => '2x',
                     ])
                     ->reactive()
-                    ->hidden(fn (Get $get) => !$get('repeat'))
+                    ->hidden(fn (Get $get) => ! $get('repeat'))
                     ->required(),
                 DatePicker::make('repeat_date_1')
                     ->label('Tanggal Repeat #1')
@@ -543,7 +531,7 @@ class OrderResource extends Resource
                     ->label('Jumlah Jual')
                     ->numeric()
                     ->minValue(0)
-                    ->hidden(fn (Get $get) => !$get('cross_selling'))
+                    ->hidden(fn (Get $get) => ! $get('cross_selling'))
                     ->required(),
             ])
             ->maxItems(1)
@@ -583,10 +571,11 @@ class OrderResource extends Resource
                 ->inline()
                 ->required()
                 ->reactive()
-                ->hidden(function (Get $get){
-                    if (!$get('place_id')) {
+                ->hidden(function (Get $get) {
+                    if (! $get('place_id')) {
                         return true;
                     }
+
                     return $get('place_type') === PlaceType::HOMECARE;
                 })
                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
@@ -599,6 +588,7 @@ class OrderResource extends Resource
                 ->label('Bidan')
                 ->options(function (Get $get) {
                     $address = Address::find($get('address_id'));
+
                     return Midwife::query()
                         ->when($get('place_type') === PlaceType::HOMECARE,
                             fn ($query) => $query->whereHas(
@@ -623,7 +613,7 @@ class OrderResource extends Resource
                 ->minDate(today())
                 ->native(false)
                 ->disabledDates(function (Get $get) {
-                    if (!$get('midwife_id')) {
+                    if (! $get('midwife_id')) {
                         return [];
                     }
 
@@ -639,7 +629,7 @@ class OrderResource extends Resource
 
                     return [
                         // ...$order,
-                        ...$timetables
+                        ...$timetables,
                     ];
                 })
                 ->reactive()
@@ -667,15 +657,14 @@ class OrderResource extends Resource
                 })
                 ->live()
                 ->required()
-                ->hidden(fn (Get $get) => !$get('date'))
+                ->hidden(fn (Get $get) => ! $get('date'))
                 ->columnSpanFull(),
             TimePicker::make('end_time')
                 ->label('Waktu Akhir')
                 ->disabled()
                 ->reactive()
                 ->required()
-                ->hiddenOn('create')
-                ,
+                ->hiddenOn('create'),
         ];
     }
 
@@ -690,10 +679,11 @@ class OrderResource extends Resource
                     ->options(function (Get $get) {
                         if ($get('../../place_type') === PlaceType::HOMECARE) {
                             $midwife = Midwife::find($get('../../midwife_id'));
-                            if (!$midwife) {
+                            if (! $midwife) {
                                 return [];
                             }
-                            return  $midwife->treatments->pluck('name', 'id')->toArray();
+
+                            return $midwife->treatments->pluck('name', 'id')->toArray();
                         }
 
                         if ($get('../../room_id') === null) {
@@ -702,9 +692,10 @@ class OrderResource extends Resource
 
                         $room = Room::find($get('../../room_id'));
 
-                        if (!$room) {
+                        if (! $room) {
                             return [];
                         }
+
                         return $room?->treatments->pluck('name', 'id')->toArray();
                     })
                     ->preload()
@@ -756,8 +747,7 @@ class OrderResource extends Resource
                     ->numeric()
                     ->dehydrated()
                     ->reactive()
-                    ->required()
-                    ,
+                    ->required(),
                 TextInput::make('treatment_duration')
                     ->label('Durasi')
                     ->suffix(' menit')
@@ -765,8 +755,7 @@ class OrderResource extends Resource
                     ->numeric()
                     ->dehydrated()
                     ->reactive()
-                    ->required()
-                    ,
+                    ->required(),
             ])
             ->afterStateUpdated(function (Set $set, Get $get) {
                 $set(

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Database\Factories\PlaceFactory;
 use App\Enums\PlaceType;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Scopes\SortScope;
+use Database\Factories\PlaceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,7 +25,7 @@ class Place extends Model
     {
         static::addGlobalScopes([
             ActiveScope::class,
-            SortScope::class
+            SortScope::class,
         ]);
     }
 
@@ -41,7 +41,9 @@ class Place extends Model
 
     public function treatments(): BelongsToMany
     {
-        return $this->belongsToMany(Treatment::class, 'prices');
+        return $this->belongsToMany(Treatment::class, 'prices', 'place_id', 'treatment_id')
+            ->withPivot('amount')
+            ->withTimestamps();
     }
 
     public function prices(): HasMany

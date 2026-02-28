@@ -2,22 +2,15 @@
 
 namespace App\Filament\Resources\PlaceResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\CreateAction;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use App\Models\Price;
-use App\Models\Treatment;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TreatmentsRelationManager extends RelationManager
 {
@@ -27,24 +20,12 @@ class TreatmentsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Select::make('treatment_id')
-                    ->options(function () {
-                        $ids = Price::query()
-                            ->where('place_id', $this->getOwnerRecord()->id)
-                            ->pluck('treatment_id');
-
-                        return Treatment::query()
-                            ->whereNotIn('id', $ids)
-                            ->pluck('name', 'id');
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->hiddenOn('edit'),
                 TextInput::make('amount')
+                    ->label('Amount')
                     ->prefix('Rp')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 
@@ -54,7 +35,8 @@ class TreatmentsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name'),
-                TextColumn::make('amount')
+                TextColumn::make('pivot.amount')
+                    ->label('Amount')
                     ->default(0)
                     ->money('idr'),
             ])
@@ -62,44 +44,40 @@ class TreatmentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()
-                    ->using(function (array $data) {
-                        $record = Price::create([
-                            'treatment_id' => $data['treatment_id'],
-                            'place_id' => $this->getOwnerRecord()->id,
+                AttachAction::make()
+                    ->preloadRecordSelect()
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect(),
+                        TextInput::make('amount')
+                            ->label('Amount')
+                            ->prefix('Rp')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                    ])
+                    ->visible(fn () => auth()->user()->isOwner),
+            ])
+            ->recordActions([
+                EditAction::make()
+                    ->form([
+                        TextInput::make('amount')
+                            ->label('Amount')
+                            ->prefix('Rp')
+                            ->required()
+                            ->numeric(),
+                    ])
+                    ->fillForm(fn (Model $record): array => [
+                        'amount' => $record->pivot->amount,
+                    ])
+                    ->using(function (Model $record, array $data) {
+                        $record->pivot->update([
                             'amount' => $data['amount'],
                         ]);
 
                         return $record;
                     })
                     ->visible(fn () => auth()->user()->isOwner),
-            ])
-            ->recordActions([
-                EditAction::make()
-                    ->using(function (Model $record, array $data) {
-                        // dd($record);
-                        $record = Price::query()
-                            ->where('treatment_id', $record->treatment_id)
-                            ->where('place_id', $record->place_id)
-                            ->first();
-
-                        $record->update([
-                                'amount' => $data['amount'],
-                            ]);
-
-                        return $record;
-                    })
-                    ->visible(fn () => auth()->user()->isOwner),
-                DeleteAction::make()
-                    ->using(function (Model $record) {
-                        // dd($record);
-                        $record = Price::query()
-                            ->where('treatment_id', $record->treatment_id)
-                            ->where('place_id', $record->place_id)
-                            ->delete();
-
-                        return $record;
-                    })
+                DetachAction::make()
                     ->visible(fn () => auth()->user()->isOwner),
             ])
             ->toolbarActions([
