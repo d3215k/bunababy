@@ -80,7 +80,7 @@ class DummyOrderSeeder extends Seeder
 
                 $address = $customer->addresses()->inRandomOrder()->first();
                 $family = $customer->families()->inRandomOrder()->first();
-                $place = Place::with('slots')->inRandomOrder()->first();
+                $place = Place::with('slots', 'treatments')->inRandomOrder()->first();
                 $room = $place->rooms()->inRandomOrder()->first();
 
                 if (! $address || ! $family || ! $place) {
@@ -108,11 +108,6 @@ class DummyOrderSeeder extends Seeder
 
                     continue;
                 }
-
-                $treatment = Treatment::inRandomOrder()->first();
-                $price = Price::where('treatment_id', $treatment->id)
-                    ->where('place_id', $place->id)
-                    ->first()?->amount ?? 0;
 
                 // Determine status based on date (ONCE per order, not per retry attempt)
                 if ($dayOffset < 0) {
@@ -144,6 +139,34 @@ class DummyOrderSeeder extends Seeder
 
                 while ($attempts < $maxAttempts && ! $orderCreated) {
                     $startTime = $availableTimes[$timeIndex];
+
+                    // Different logic based on place type
+                    if ($place->type === \App\Enums\PlaceType::HOMECARE) {
+                        // HOMECARE: Treatment based on midwife capability only
+                        $midwife = \App\Models\Midwife::with('treatments')->find($midwifeId);
+                        $availableTreatmentIds = $midwife->treatments->pluck('id')->toArray();
+                    } else {
+                        // CLINIC: Treatment based on place availability only (from prices/place treatments)
+                        // Assume all midwives at clinic can perform all treatments available at that clinic
+                        $availableTreatmentIds = $place->treatments->pluck('id')->toArray();
+                    }
+
+                    if (empty($availableTreatmentIds)) {
+                        // No treatments available
+                        // Try next midwife
+                        $midwifeIndex = ($midwifeIndex + 1) % count($midwives);
+                        $midwifeId = $midwives[$midwifeIndex];
+                        $attempts++;
+
+                        continue;
+                    }
+
+                    // Pick a random treatment from available treatments
+                    $treatmentId = $availableTreatmentIds[array_rand($availableTreatmentIds)];
+                    $treatment = Treatment::find($treatmentId);
+                    $price = Price::where('treatment_id', $treatment->id)
+                        ->where('place_id', $place->id)
+                        ->first()?->amount ?? 0;
 
                     // Prepare order data - let OrderService handle validation and data preparation
                     $order = [
