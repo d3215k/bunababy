@@ -74,6 +74,28 @@ class OrderService
             return false;
         }
 
+        // Check if midwife has clinic-only timetable (can only work at specific clinic)
+        $clinicTimetable = Timetable::query()
+            ->where('midwife_id', $data['midwife_id'])
+            ->where('date', $data['date'])
+            ->where('type', TimetableType::CLINIC)
+            ->first();
+
+        if ($clinicTimetable) {
+            // Midwife can only work at the clinic specified in timetable
+            $place = Place::find($data['place_id']);
+
+            // If order is homecare, reject
+            if ($place->type === PlaceType::HOMECARE) {
+                return false;
+            }
+
+            // If order is clinic but different clinic, reject
+            if ($clinicTimetable->place_id && $clinicTimetable->place_id !== $data['place_id']) {
+                return false;
+            }
+        }
+
         // Check for time slot conflicts
         $startDateTime = Carbon::parse($data['date'].' '.$data['start_time']);
         $endDateTime = Carbon::parse($data['date'].' '.$data['end_time']);
