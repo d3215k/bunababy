@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Filament\Resources\OrderResource;
+use App\Models\Family;
+use App\Models\Place;
+use App\Services\OrderService;
+use App\Support\FormatNumber;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
-use App\Enums\PlaceType;
-use App\Filament\Resources\OrderResource;
-use App\Models\Address;
-use App\Models\Order;
-use App\Models\Place;
-use App\Support\FormatNumber;
-use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Contracts\Support\Htmlable;
@@ -24,7 +22,7 @@ class EditOrder extends EditRecord
 
     public function getHeading(): string|Htmlable
     {
-        return $this->getRecord()->id . ' - ' . $this->getRecord()->customer->name;
+        return $this->getRecord()->id.' - '.$this->getRecord()->customer->name;
     }
 
     #[On('payment-updated')]
@@ -39,7 +37,7 @@ class EditOrder extends EditRecord
             Action::make('chat')
                 ->label('Chat WA')
                 ->icon('heroicon-o-chat-bubble-bottom-center-text')
-                ->url('https://wa.me/' . FormatNumber::toWaIndo($this->getRecord()->customer->phone) . '?text=Halo+' . urlencode($this->getRecord()->customer->name))
+                ->url('https://wa.me/'.FormatNumber::toWaIndo($this->getRecord()->customer->phone).'?text=Halo+'.urlencode($this->getRecord()->customer->name))
                 ->openUrlInNewTab(),
             Action::make('invoice')
                 ->label('Cetak Invoice')
@@ -57,50 +55,42 @@ class EditOrder extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $place =  Place::find($data['place_id']);
+        $place = Place::find($data['place_id']);
         $data['place_type'] = $place->type;
         $data['place_transport_duration'] = $place->transport_duration;
+
+        // Convert treatments data to include family_id for repeater pre-population
+        if (! empty($data['treatments']) && is_array($data['treatments'])) {
+            $data['treatments'] = array_map(function ($treatment) use ($data) {
+                // If family_id is not present, try to find it from family_name
+                if (! isset($treatment['family_id']) && isset($treatment['family_name'])) {
+                    $family = Family::where('customer_id', $data['customer_id'])
+                        ->where('name', $treatment['family_name'])
+                        ->first();
+                    if ($family) {
+                        $treatment['family_id'] = $family->id;
+                    }
+                }
+
+                return $treatment;
+            }, $data['treatments']);
+        }
 
         return $data;
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $address = Address::find($data['address_id']);
-
-        $place = Place::find($data['place_id']);
-
-        if ($place->type === PlaceType::HOMECARE) {
-            if ($record->place_id !== $data['place_id']) {
-                $data['transport'] = Order::getCalculatedTransport($address->kecamatan->distance);
-            }
-            $data['room_id'] = null;
-        }
-
-        $data['price'] = collect($data['treatments'])->sum('treatment_price');
-
-        $data['last_updated_by'] = auth()->id();
-        $data['end_time'] = Order::getCalculatedEndTime($data['date'], $data['start_time'], $data['treatments'], $place->transport_duration);
-
-        $isAvailable = Order::isAvailable($data, $place->type, $record->id);
-
-        if (!$isAvailable) {
+        try {
+            return (new OrderService)->update($record, $data);
+        } catch (\Exception $e) {
             Notification::make()
                 ->warning()
                 ->title('Jadwal tidak tersedia!')
-                ->body('Silahkan pilih jadwal lain')
+                ->body($e->getMessage())
                 ->send();
 
-            $this->halt();
-
+            throw $e;
         }
-
-
-        // dd($data);
-
-        $record->update($data);
-
-        return $record;
     }
-
 }

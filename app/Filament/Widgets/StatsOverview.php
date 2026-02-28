@@ -22,7 +22,7 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         $reservationsToday = Order::whereDate('date', today())
-            ->where('status', '!=', OrderStatus::CANCELLED)
+            ->whereNotIn('status', [OrderStatus::CANCELLED, OrderStatus::PENDING])
             ->count();
 
         $completedToday = Order::whereDate('date', today())

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PlaceType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,9 +20,31 @@ class PlaceFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'desc' => $this->faker->sentence(),
-            'type' => $this->faker->randomElement([1, 2]),
+            'type' => PlaceType::HOMECARE,
             'transport_duration' => $this->faker->numberBetween(0, 60),
             'active' => true,
         ];
+    }
+
+    /**
+     * Set place as homecare.
+     */
+    public function homecare(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => PlaceType::HOMECARE,
+            'transport_duration' => $this->faker->numberBetween(30, 60),
+        ]);
+    }
+
+    /**
+     * Set place as clinic.
+     */
+    public function clinic(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => PlaceType::CLINIC,
+            'transport_duration' => 0,
+        ]);
     }
 }

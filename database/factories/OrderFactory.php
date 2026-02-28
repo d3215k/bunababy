@@ -22,10 +22,13 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
+        $place = Place::factory()->create();
+        $room = Room::factory()->create(['place_id' => $place->id]);
+
         return [
             'customer_id' => Customer::factory(),
-            'place_id' => Place::factory(),
-            'room_id' => Room::factory(),
+            'place_id' => $place->id,
+            'room_id' => $room->id,
             'midwife_id' => Midwife::factory(),
             'address_id' => Address::factory(),
             'date' => $this->faker->dateTime(),

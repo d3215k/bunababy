@@ -42,6 +42,7 @@ class OrdersChart extends ChartWidget
         $orders = Order::query()
             ->select('midwife_id', 'status', DB::raw('COUNT(*) as total'))
             ->whereDate('date', today())
+            ->whereNotIn('status', [OrderStatus::CANCELLED, OrderStatus::PENDING])
             ->whereIn('midwife_id', $midwives->keys())
             ->groupBy('midwife_id', 'status')
             ->get()
@@ -49,16 +50,6 @@ class OrdersChart extends ChartWidget
 
         // Define status configurations with colors
         $statusConfigs = [
-            OrderStatus::CANCELLED->value => [
-                'label' => OrderStatus::CANCELLED->getLabel(),
-                'backgroundColor' => '#ef4444',
-                'borderColor' => '#fca5a5',
-            ],
-            OrderStatus::PENDING->value => [
-                'label' => OrderStatus::PENDING->getLabel(),
-                'backgroundColor' => '#f97316',
-                'borderColor' => '#fdba74',
-            ],
             OrderStatus::BOOKED->value => [
                 'label' => OrderStatus::BOOKED->getLabel(),
                 'backgroundColor' => '#22c55e',

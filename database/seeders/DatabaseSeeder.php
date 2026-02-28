@@ -43,6 +43,7 @@ class DatabaseSeeder extends Seeder
 
         Customer::factory(30)
             ->has(Address::factory())
+            ->has(\App\Models\Family::factory()->count(2), 'families')
             ->create();
 
         // $this->command->info("Creating orders ...\n");

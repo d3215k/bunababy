@@ -2,21 +2,19 @@
 
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
-use Filament\Schemas\Schema;
+use App\Enums\PaymentStatus;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use App\Enums\PaymentStatus;
-use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class PaymentsRelationManager extends RelationManager
@@ -37,7 +35,7 @@ class PaymentsRelationManager extends RelationManager
                     ->default(PaymentStatus::VERIFIED)
                     ->inline()
                     ->required(),
-                Textarea::make('note')
+                Textarea::make('note'),
             ])->columns(1);
     }
 
@@ -63,7 +61,7 @@ class PaymentsRelationManager extends RelationManager
                 CreateAction::make()
                     ->mutateDataUsing(function (array $data): array {
                         $data['verified_at'] = now();
-                        $data['verified_by_id'] = auth()->id();
+                        $data['verified_by_id'] = Auth::id();
 
                         return $data;
                     })
@@ -73,7 +71,7 @@ class PaymentsRelationManager extends RelationManager
                 EditAction::make()
                     ->mutateDataUsing(function (array $data): array {
                         $data['verified_at'] = now();
-                        $data['verified_by_id'] = auth()->id();
+                        $data['verified_by_id'] = Auth::id();
 
                         return $data;
                     })

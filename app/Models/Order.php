@@ -2,20 +2,15 @@
 
 namespace App\Models;
 
-use Database\Factories\OrderFactory;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\PlaceType;
-use App\Enums\TimetableType;
 use App\Support\DateTime;
-use App\Support\FormatNumber;
+use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -39,7 +34,7 @@ class Order extends Model
 
     public function getInvoice()
     {
-        return 'INV/' . $this->date->format('Ymd') . '/' . $this->id;
+        return 'INV/'.$this->date->format('Ymd').'/'.$this->id;
     }
 
     public function createdBy()
@@ -94,18 +89,18 @@ class Order extends Model
 
     public function getStartDateTimeAttribute()
     {
-        return Carbon::parse(Carbon::parse($this->date)->toDateString() . ' ' . $this->start_time);
+        return Carbon::parse(Carbon::parse($this->date)->toDateString().' '.$this->start_time);
     }
 
     public function getEndDateTimeAttribute()
     {
-        return Carbon::parse(Carbon::parse($this->date)->toDateString() . ' ' . $this->end_time)
+        return Carbon::parse(Carbon::parse($this->date)->toDateString().' '.$this->end_time)
             ->addMinutes($this->place->transport_duration);
     }
 
     public function scopeActiveBetween($query, $from, $to)
     {
-        $query->whereStatus(OrderStatus::BOOKED)
+        $query->whereNot('status', OrderStatus::CANCELLED)
             ->betweenTimes($from, $to);
     }
 
@@ -171,7 +166,7 @@ class Order extends Model
     public function getListTreatmentsWithFamilyAttribute()
     {
         return collect($this->treatments)->map(function ($treatment) {
-            return $treatment['treatment_name'] . ' (' . $treatment['family_name'] . ' ' . DateTime::calculateAge($treatment['family_dob']) . ')';
+            return $treatment['treatment_name'].' ('.$treatment['family_name'].' '.DateTime::calculateAge($treatment['family_dob']).')';
         })->implode(', ');
     }
 
@@ -192,13 +187,13 @@ class Order extends Model
 
     public function getTime()
     {
-        return Carbon::parse($this->start_time)->format('H:i') . ' - ' . Carbon::parse($this->end_time)
+        return Carbon::parse($this->start_time)->format('H:i').' - '.Carbon::parse($this->end_time)
             ->format('H:i');
     }
 
     public function getLongTime()
     {
-        return $this->getTime(). ' WIB';
+        return $this->getTime().' WIB';
     }
 
     public function getLongDate()
@@ -213,7 +208,7 @@ class Order extends Model
 
     public function getLongDateTime()
     {
-        return $this->getLongDate() . ' ' . $this->getLongTime();
+        return $this->getLongDate().' '.$this->getLongTime();
     }
 
     public static function getCalculatedEndTime($date, $startTime, $treatments, $transportDuration = 0)
@@ -227,64 +222,14 @@ class Order extends Model
 
     public static function getCalculatedTransport($distance)
     {
-        $transportCost = null;
-
-        switch (true) {
-            case $distance <= 2:
-                $transportCost = 15000;
-                break;
-            case $distance <= 3:
-                $transportCost = 18000;
-                break;
-            case $distance <= 5:
-                $transportCost = 25000;
-                break;
-            case $distance <= 7:
-                $transportCost = 30000;
-                break;
-            case $distance <= 9:
-                $transportCost = 33000;
-                break;
-            case $distance <= 20:
-                $transportCost = 38000;
-                break;
-            default:
-                $transportCost = 40000;
-                break;
-        }
-
-        return $transportCost;
+        return match (true) {
+            $distance <= 2 => 15000,
+            $distance <= 3 => 18000,
+            $distance <= 5 => 25000,
+            $distance <= 7 => 30000,
+            $distance <= 9 => 33000,
+            $distance <= 20 => 38000,
+            default => 40000,
+        };
     }
-
-    public static function isAvailable($data, $placeType, $currentOrderId = null)
-    {
-        $startDateTime = Carbon::parse($data['date'] . ' ' . $data['start_time']);
-        $endDateTime = Carbon::parse($data['date'] . ' ' . $data['start_time']);
-
-        $isMidwifeOnLeave = Timetable::query()
-            ->where('midwife_id', $data['midwife_id'])
-            ->where('date', $data['date'])
-            ->whereIn('type', [TimetableType::LEAVE])
-            ->exists();
-
-        if ($isMidwifeOnLeave) {
-            return false;
-        }
-
-        $order = Order::where('date', $data['date'])
-            // ->where('place_id', $data['place_id'])
-            ->where('midwife_id', $data['midwife_id'])
-            ->when($placeType === PlaceType::CLINIC,
-                fn ($query) => $query->orWhere('room_id', $data['room_id']),
-            )
-            ->activeBetween($startDateTime->toTimeString(), $endDateTime->toTimeString())
-            ->get()
-            ->except($currentOrderId)
-            ;
-
-        // dd($order);
-
-        return $order->count() < 1;
-    }
-
 }

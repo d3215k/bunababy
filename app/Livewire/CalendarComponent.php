@@ -272,6 +272,7 @@ class CalendarComponent extends Component
 
         $ordersQuery = Order::query()
             ->whereDate('date', $this->selectedDay)
+            ->whereNotIn('status', [OrderStatus::CANCELLED, OrderStatus::PENDING])
             ->with([
                 'customer:id,name',
                 'address:id,kecamatan_id',

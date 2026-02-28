@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\FamilyType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,6 +18,8 @@ class FamilyFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => $this->faker->firstName(),
+            'type' => FamilyType::ANAK,
             'dob' => $this->faker->date(),
         ];
     }
