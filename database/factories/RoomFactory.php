@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Place;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,7 @@ class RoomFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'place_id' => Place::factory(),
+            'place_id' => rand(1, 3), // Use existing places from PlaceSeeder
             'active' => true,
         ];
     }

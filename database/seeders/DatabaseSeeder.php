@@ -2,18 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\PlaceType;
 use App\Enums\UserType;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Price;
-use App\Models\Profile;
-use App\Models\Treatment;
 use App\Models\User;
-use App\Support\DateTime;
 use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -70,44 +66,54 @@ class DatabaseSeeder extends Seeder
         //             'kecamatan_id' => rand(1, 70),
         //         ]);
 
-        //     $date = today()->addDays($i);
+        //     // Random date dari hari ini sampai 90 hari ke depan
+        //     $daysAhead = rand(0, 90);
+        //     $date = today()->addDays($daysAhead);
         //     $midwifeId = rand(1, 5);
+
+        //     // Random status order
+        //     $statuses = [OrderStatus::PENDING, OrderStatus::BOOKED, OrderStatus::COMPLETED];
+        //     $status = $statuses[array_rand($statuses)];
+
+        //     // Random price antara 500k - 5juta
+        //     $price = rand(500000, 5000000);
+        //     $transport = rand(0, 300000);
 
         //     $order = Order::factory()
         //         ->create([
-        //             'place_id' => PlaceType::HOMECARE,
+        //             'place_id' => 1, // Homecare place
         //             'address_id' => $address->id,
-        //             'transport' => 0,
+        //             'transport' => $transport,
         //             'midwife_id' => $midwifeId,
         //             'customer_id' => $customer->id,
         //             'date' => Carbon::parse($date->toDateString()),
-        //             'start_time' => Carbon::createFromTime(8, 0, 0)->toTimeString(),
+        //             'start_time' => Carbon::createFromTime(rand(8, 14), rand(0, 59), 0)->toTimeString(),
+        //             'price' => $price,
+        //             'status' => $status,
         //         ]);
 
-        //     // foreach (range(1, 2) as $index ) {
-        //     //     $id = rand(1, 21);
-        //     //     $order->treatments()->attach($id, [
-        //     //         'family_name' => $order->customer->name,
-        //     //         'family_age' => DateTime::calculateAge($order->customer->dob),
-        //     //         'treatment_duration' => Treatment::find($id)->duration,
-        //     //         'treatment_price' => Price::where('treatment_id', $id)
-        //     //             ->where('place_id', $order->place_id)->value('amount'),
-        //     //     ]);
-        //     // }
+        //     // Random end time (add 1-3 jam)
+        //     $order->update([
+        //         'end_time' => $order->startDateTime->addHours(rand(1, 3))->toTimeString(),
+        //     ]);
 
-        //     // $totalDuration = $order->total_duration + $order->treatments->sum('duration');
+        //     // Create payment - random status dan amount
+        //     $isFullyPaid = rand(0, 10) > 4; // 60% chance fully paid
+        //     $paymentStatus = $isFullyPaid ? PaymentStatus::VERIFIED : PaymentStatus::UNVERIFIED;
 
-        //     // $order->update([
-        //     //     'total_price' => $order->treatments->sum('pivot.treatment_price'),
-        //     //     'total_duration' =>  $totalDuration,
-        //     //     'end_time' => $order->startDateTime->addMinutes($totalDuration)->toTimeString(),
-        //     // ]);
+        //     if ($isFullyPaid) {
+        //         // Fully paid = price + transport
+        //         $paymentAmount = $price + $transport;
+        //     } else {
+        //         // Partial payment = 20%-80% dari total
+        //         $paymentAmount = (int) (($price + $transport) * rand(20, 80) / 100);
+        //     }
 
         //     $payment = Payment::factory()
         //         ->create([
         //             'order_id' => $order->id,
-        //             'value' => $order->getGrandTotal(),
-        //             'status' => PaymentStatus::VERIFIED
+        //             'value' => $paymentAmount,
+        //             'status' => $paymentStatus,
         //         ]);
 
         //     $bar->advance();
