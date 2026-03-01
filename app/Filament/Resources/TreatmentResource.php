@@ -2,30 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
-use App\Filament\Resources\TreatmentResource\RelationManagers\MidwivesRelationManager;
-use App\Filament\Resources\TreatmentResource\RelationManagers\PlacesRelationManager;
-use App\Filament\Resources\TreatmentResource\Pages\ListTreatments;
 use App\Filament\Resources\TreatmentResource\Pages\CreateTreatment;
 use App\Filament\Resources\TreatmentResource\Pages\EditTreatment;
-use App\Filament\Resources\TreatmentResource\Pages;
-use App\Filament\Resources\TreatmentResource\RelationManagers;
+use App\Filament\Resources\TreatmentResource\Pages\ListTreatments;
+use App\Filament\Resources\TreatmentResource\RelationManagers\MidwivesRelationManager;
+use App\Filament\Resources\TreatmentResource\RelationManagers\PlacesRelationManager;
 use App\Models\Scopes\ActiveScope;
 use App\Models\Treatment;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TreatmentResource extends Resource
 {
@@ -33,9 +29,9 @@ class TreatmentResource extends Resource
 
     protected static ?string $model = Treatment::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?int $navigationSort = 4;
 
@@ -65,7 +61,7 @@ class TreatmentResource extends Resource
                 Toggle::make('active')
                     ->required(),
             ])
-            ->disabled(fn () => !auth()->user()->isOwner);
+            ->disabled(fn () => ! auth()->user()->isOwner);
     }
 
     public static function table(Table $table): Table

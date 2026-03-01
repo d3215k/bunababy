@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum PaymentStatus: int implements HasLabel, HasColor, HasIcon
+enum PaymentStatus: int implements HasColor, HasIcon, HasLabel
 {
     case UNVERIFIED = 1;
     case VERIFIED = 2;

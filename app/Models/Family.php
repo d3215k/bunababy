@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Database\Factories\FamilyFactory;
 use App\Enums\FamilyType;
 use App\Support\DateTime;
+use Database\Factories\FamilyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

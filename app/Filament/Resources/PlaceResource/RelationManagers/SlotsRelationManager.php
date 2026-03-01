@@ -2,19 +2,16 @@
 
 namespace App\Filament\Resources\PlaceResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Tables\Columns\TextColumn;
+use App\Enums\SlotPart;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
-use App\Enums\SlotPart;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SlotsRelationManager extends RelationManager
 {

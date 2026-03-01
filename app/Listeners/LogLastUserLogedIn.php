@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use Illuminate\Auth\Events\Login;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class LogLastUserLogedIn
 {
@@ -22,7 +20,7 @@ class LogLastUserLogedIn
     public function handle(Login $event): void
     {
         $event->user->update([
-            'last_login' => now()
+            'last_login' => now(),
         ]);
     }
 }

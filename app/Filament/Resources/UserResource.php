@@ -2,30 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\SelectColumn;
-use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Enums\UserType;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
-use App\Enums\UserType;
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Scopes\ActiveScope;
 use App\Models\User;
 use App\Traits\EnsureOnlyOwnerCanAccess;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UserResource extends Resource
@@ -34,11 +30,11 @@ class UserResource extends Resource
 
     protected static ?string $model = User::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-finger-print';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-finger-print';
 
     protected static ?string $modelLabel = 'Akses Pengguna';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?int $navigationSort = 9;
 
@@ -78,7 +74,7 @@ class UserResource extends Resource
                 TextColumn::make('last_login')
                     ->label('Login Terakhir')
                     ->toggleable()
-                    ->sortable()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')
@@ -95,7 +91,7 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->action(fn (User $record) => $record->update(['password' => bcrypt('12345678')])),
                 DeleteAction::make()
-                        ->iconButton()
+                    ->iconButton(),
                 // Tables\Actions\EditAction::make(),
             ])
             ->toolbarActions([

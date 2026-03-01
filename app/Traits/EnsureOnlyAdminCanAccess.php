@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Traits;
 
-trait EnsureOnlyAdminCanAccess {
-
+trait EnsureOnlyAdminCanAccess
+{
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->isAdmin;
@@ -12,5 +13,4 @@ trait EnsureOnlyAdminCanAccess {
     {
         return auth()->user()->isAdmin;
     }
-
 }

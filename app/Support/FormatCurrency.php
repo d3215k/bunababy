@@ -12,11 +12,13 @@ class FormatCurrency
         //
     }
 
-    public static function rupiah($value) {
+    public static function rupiah($value)
+    {
         $isNegative = false;
         if ($value < 0) {
             $isNegative = true;
         }
-        return ($isNegative ? '-Rp' : 'Rp') . number_format(abs($value), 2, ',', '.');
+
+        return ($isNegative ? '-Rp' : 'Rp').number_format(abs($value), 2, ',', '.');
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\KecamatanFactory;
 use App\Models\Scopes\ActiveScope;
+use Database\Factories\KecamatanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +17,7 @@ class Kecamatan extends Model
 
     protected $casts = [
         'distance' => 'integer',
-        'active' => 'boolean'
+        'active' => 'boolean',
     ];
 
     protected static function booted(): void

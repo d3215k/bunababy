@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +14,7 @@ class PlaceSeeder extends Seeder
     {
         DB::table('places')->insert([
             [
-                'id'   => 1,
+                'id' => 1,
                 'name' => 'Homecare',
                 'desc' => 'Di rumah sesuai alamat lokasi',
                 'type' => 1, // 1 = homecare, 2 = klinik
@@ -25,7 +24,7 @@ class PlaceSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id'   => 2,
+                'id' => 2,
                 'name' => 'Klinik Cimahi',
                 'desc' => 'Komplek Nata Endah Blok N No. 170, Cibabat, Cimahi',
                 'type' => 2, // 1 = homecare, 2 = klinik
@@ -35,7 +34,7 @@ class PlaceSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id'   => 3,
+                'id' => 3,
                 'name' => 'Klinik Bandung',
                 'desc' => 'Alamat Klinik Bandung',
                 'type' => 2, // 1 = homecare, 2 = klinik

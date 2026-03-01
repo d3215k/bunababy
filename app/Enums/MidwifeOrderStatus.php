@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum MidwifeOrderStatus: int implements HasLabel, HasColor, HasIcon
+enum MidwifeOrderStatus: int implements HasColor, HasIcon, HasLabel
 {
     case BOOKED = 2;
     case ON_HOLD = 4;
@@ -43,5 +43,4 @@ enum MidwifeOrderStatus: int implements HasLabel, HasColor, HasIcon
             self::FINISHED => 'heroicon-m-check-circle',
         };
     }
-
 }

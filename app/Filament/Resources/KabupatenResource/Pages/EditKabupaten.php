@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\KabupatenResource\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\Resources\KabupatenResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditKabupaten extends EditRecord

@@ -2,26 +2,21 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use App\Enums\PlaceType;
 use App\Enums\TimetableType;
 use App\Filament\Resources\MidwifeResource;
 use App\Models\Place;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Pages\ManageRelatedRecords;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ManageMidwifeTimetables extends ManageRelatedRecords
 {
@@ -29,7 +24,7 @@ class ManageMidwifeTimetables extends ManageRelatedRecords
 
     protected static string $relationship = 'timetables';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {
@@ -52,8 +47,8 @@ class ManageMidwifeTimetables extends ManageRelatedRecords
                     ->label('Tempat')
                     ->options(fn () => Place::where('type', PlaceType::CLINIC)->pluck('name', 'id'))
                     ->reactive()
-                    // ->hidden(fn (Get $get) => $get('type') !== PlaceType::CLINIC->value)
-                    ,
+                // ->hidden(fn (Get $get) => $get('type') !== PlaceType::CLINIC->value)
+                ,
                 Textarea::make('note')
                     ->maxLength(255),
             ]);

@@ -6,7 +6,6 @@ use App\Enums\TimetableType;
 use App\Http\Controllers\Controller;
 use App\Models\Timetable;
 use Illuminate\Http\Request;
-use Ramsey\Uuid\Type\Time;
 
 class TimetablesController extends Controller
 {

@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Traits;
 
-trait EnsureOnlyOwnerCanAccess {
-
+trait EnsureOnlyOwnerCanAccess
+{
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->isOwner;
@@ -12,5 +13,4 @@ trait EnsureOnlyOwnerCanAccess {
     {
         return auth()->user()->isOwner;
     }
-
 }

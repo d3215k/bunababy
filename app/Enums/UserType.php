@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum UserType: int implements HasLabel, HasColor
+enum UserType: int implements HasColor, HasLabel
 {
     case CUSTOMER = 1;
     case MIDWIFE = 2;

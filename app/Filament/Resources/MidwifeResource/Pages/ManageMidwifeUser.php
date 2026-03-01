@@ -2,34 +2,30 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
 use App\Enums\UserType;
 use App\Filament\Resources\MidwifeResource;
 use App\Models\Midwife;
-use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
 {
-    use InteractsWithRecord;
     use InteractsWithForms;
+    use InteractsWithRecord;
 
     protected static string $resource = MidwifeResource::class;
 
     protected static string $relationship = 'user';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {
@@ -44,7 +40,7 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
                 ->color('danger')
                 ->requiresConfirmation()
                 ->modalHeading(
-                    fn (Midwife $record) => 'Reset Password ' . $record->name
+                    fn (Midwife $record) => 'Reset Password '.$record->name
                 )
                 ->action(fn (Midwife $record) => $record->user->update(['password' => bcrypt('12345678')]))
                 ->hidden(fn () => ! $this->getRecord()->user),
@@ -86,7 +82,7 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
         ]);
     }
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
 
@@ -98,20 +94,20 @@ class ManageMidwifeUser extends ManageRelatedRecords implements HasForms
         return $schema
             ->components([
                 TextInput::make('email')
-                ->required()
-                ->unique(
-                    table: 'users',
-                    column: 'email',
-                    ignorable: fn () => $this->getRecord()->user,
-                )
-                ->validationMessages([
-                    'unique' => 'Email sudah ada digunakan.',
-                    'required' => 'Email wajib diisi.'
-                ])
-                ->maxLength(255),
-            TextInput::make('name')
-                ->required()
-                ->maxLength(255),
+                    ->required()
+                    ->unique(
+                        table: 'users',
+                        column: 'email',
+                        ignorable: fn () => $this->getRecord()->user,
+                    )
+                    ->validationMessages([
+                        'unique' => 'Email sudah ada digunakan.',
+                        'required' => 'Email wajib diisi.',
+                    ])
+                    ->maxLength(255),
+                TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 

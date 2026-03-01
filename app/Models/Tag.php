@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\TagFactory;
 use App\Models\Scopes\ActiveScope;
+use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

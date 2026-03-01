@@ -2,22 +2,21 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
 use App\Settings\GeneralSettings;
 use App\Traits\EnsureOnlyOwnerCanAccess;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Schema;
 
 class ManageGeneralSettings extends SettingsPage
 {
     use EnsureOnlyOwnerCanAccess;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static string $settings = GeneralSettings::class;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?string $title = 'Pengaturan';
 

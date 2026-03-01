@@ -2,18 +2,14 @@
 
 namespace App\Filament\Resources\TreatmentResource\RelationManagers;
 
+use App\Models\Midwife;
+use Filament\Actions\Action;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\AttachAction;
-use Filament\Actions\Action;
-use Filament\Actions\DetachAction;
-use App\Models\Midwife;
-use Filament\Forms;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MidwivesRelationManager extends RelationManager
 {

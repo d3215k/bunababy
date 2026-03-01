@@ -2,32 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use App\Filament\Resources\TimetableResource\Pages\ListTimetables;
-use App\Filament\Resources\TimetableResource\Pages\CreateTimetable;
-use App\Filament\Resources\TimetableResource\Pages\EditTimetable;
 use App\Enums\PlaceType;
 use App\Enums\TimetableType;
-use App\Filament\Resources\TimetableResource\Pages;
-use App\Filament\Resources\TimetableResource\RelationManagers;
+use App\Filament\Resources\TimetableResource\Pages\CreateTimetable;
+use App\Filament\Resources\TimetableResource\Pages\EditTimetable;
+use App\Filament\Resources\TimetableResource\Pages\ListTimetables;
 use App\Models\Place;
 use App\Models\Timetable;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Log;
 
 class TimetableResource extends Resource
 {
@@ -35,11 +28,11 @@ class TimetableResource extends Resource
 
     protected static ?string $model = Timetable::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clock';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $modelLabel = 'Penjadwalan';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
+    protected static string|\UnitEnum|null $navigationGroup = 'Admin';
 
     protected static ?int $navigationSort = 2;
 

@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum OrderStatus: int implements HasLabel, HasColor, HasIcon
+enum OrderStatus: int implements HasColor, HasIcon, HasLabel
 {
     case CANCELLED = 0;
     case PENDING = 1;
@@ -55,5 +55,4 @@ enum OrderStatus: int implements HasLabel, HasColor, HasIcon
             self::COMPLETED => 'heroicon-m-check-badge',
         };
     }
-
 }

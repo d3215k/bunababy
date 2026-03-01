@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->unsignedInteger('duration'); // unchecked
             $table->text('desc')->nullable();
-            $table->integer('sort')->nullable();;
+            $table->integer('sort')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

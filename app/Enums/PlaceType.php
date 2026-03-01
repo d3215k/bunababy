@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum PlaceType: int implements HasLabel, HasColor
+enum PlaceType: int implements HasColor, HasLabel
 {
     case HOMECARE = 1;
     case CLINIC = 2;

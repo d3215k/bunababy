@@ -2,33 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Pages\Enums\SubNavigationPosition;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\MidwifeResource\Pages\CreateMidwife;
 use App\Filament\Resources\MidwifeResource\Pages\EditMidwife;
+use App\Filament\Resources\MidwifeResource\Pages\ListMidwives;
+use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeKecamatan;
 use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeTimetables;
 use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeTreatments;
-use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeKecamatan;
 use App\Filament\Resources\MidwifeResource\Pages\ManageMidwifeUser;
-use App\Filament\Resources\MidwifeResource\Pages\ListMidwives;
-use App\Filament\Resources\MidwifeResource\Pages\CreateMidwife;
-use App\Filament\Resources\MidwifeResource\Pages;
-use App\Filament\Resources\MidwifeResource\RelationManagers;
 use App\Models\Midwife;
 use App\Models\Scopes\ActiveScope;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MidwifeResource extends Resource
 {
@@ -36,9 +32,9 @@ class MidwifeResource extends Resource
 
     protected static ?string $model = Midwife::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Admin';
+    protected static string|\UnitEnum|null $navigationGroup = 'Admin';
 
     protected static ?string $modelLabel = 'Bidan';
 
@@ -74,7 +70,7 @@ class MidwifeResource extends Resource
                 Toggle::make('active')
                     ->required(),
             ])
-            ->disabled(fn () => !auth()->user()->isOwner);
+            ->disabled(fn () => ! auth()->user()->isOwner);
     }
 
     public static function table(Table $table): Table
@@ -94,7 +90,7 @@ class MidwifeResource extends Resource
                 TextColumn::make('kecamatans.name')
                     ->wrap(),
                 IconColumn::make('active')
-                    ->boolean()
+                    ->boolean(),
             ])
             ->filters([
                 //

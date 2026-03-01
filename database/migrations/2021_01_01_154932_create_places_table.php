@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('desc');
             $table->tinyInteger('type');
             $table->integer('transport_duration')->default(0);
-            $table->integer('sort')->nullable();;
+            $table->integer('sort')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

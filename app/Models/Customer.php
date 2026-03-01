@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Database\Factories\CustomerFactory;
 use App\Observers\CustomerObserver;
+use Database\Factories\CustomerFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +31,7 @@ class Customer extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function latestOrder() : HasOne
+    public function latestOrder(): HasOne
     {
         return $this->hasOne(Order::class)->latestOfMany();
     }
@@ -49,6 +49,6 @@ class Customer extends Model
     public function getAddressAttribute()
     {
         return $this->addresses()->mainAddress()->select('id', 'kecamatan_id')->with('kecamatans:id,name')->first()
-            ->kecamatans->name ?? NULL;
+            ->kecamatans->name ?? null;
     }
 }

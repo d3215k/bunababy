@@ -34,7 +34,7 @@ class OrderExporter extends Exporter
             ExportColumn::make('total')
                 ->state(fn (Order $record) => $record->getGrandTotal()),
             ExportColumn::make('status')
-                ->state(fn (Order $record) => isset($record->status) ? $record->status->getLabel() : '-' ),
+                ->state(fn (Order $record) => isset($record->status) ? $record->status->getLabel() : '-'),
             ExportColumn::make('finished_at'),
             ExportColumn::make('keterangan')
                 ->state(function (Order $record) {
@@ -48,10 +48,10 @@ class OrderExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your order export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Your order export has completed and '.number_format($export->successful_rows).' '.str('row')->plural($export->successful_rows).' exported.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+            $body .= ' '.number_format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to export.';
         }
 
         return $body;

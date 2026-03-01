@@ -24,9 +24,9 @@ class Address extends Model
             $kecamatan = $model->kecamatan()->with('kabupaten')->first();
 
             $model->full_address =
-                $model->address . " Desa/Kel. " .
-                $model->desa . " Kec. " .
-                optional($kecamatan)->name . " " .
+                $model->address.' Desa/Kel. '.
+                $model->desa.' Kec. '.
+                optional($kecamatan)->name.' '.
                 optional(optional($kecamatan)->kabupaten)->name;
         });
     }

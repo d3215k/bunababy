@@ -2,27 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
-use App\Filament\Resources\KabupatenResource\RelationManagers\KecamatansRelationManager;
-use App\Filament\Resources\KabupatenResource\Pages\ListKabupatens;
 use App\Filament\Resources\KabupatenResource\Pages\CreateKabupaten;
 use App\Filament\Resources\KabupatenResource\Pages\EditKabupaten;
-use App\Filament\Resources\KabupatenResource\Pages;
-use App\Filament\Resources\KabupatenResource\RelationManagers;
+use App\Filament\Resources\KabupatenResource\Pages\ListKabupatens;
+use App\Filament\Resources\KabupatenResource\RelationManagers\KecamatansRelationManager;
 use App\Models\Kabupaten;
 use App\Traits\EnsureOnlyAdminCanAccess;
-use Filament\Forms;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KabupatenResource extends Resource
 {
@@ -30,12 +24,11 @@ class KabupatenResource extends Resource
 
     protected static ?string $model = Kabupaten::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Sistem';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
     protected static ?string $navigationParentItem = 'Wilayah';
-
 
     public static function form(Schema $schema): Schema
     {
@@ -47,7 +40,7 @@ class KabupatenResource extends Resource
                 Toggle::make('active')
                     ->required(),
             ])
-            ->disabled(fn () => !auth()->user()->isOwner);
+            ->disabled(fn () => ! auth()->user()->isOwner);
     }
 
     public static function table(Table $table): Table

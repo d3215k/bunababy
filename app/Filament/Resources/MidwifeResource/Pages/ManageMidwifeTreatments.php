@@ -2,21 +2,17 @@
 
 namespace App\Filament\Resources\MidwifeResource\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\AttachAction;
-use Filament\Actions\Action;
-use Filament\Actions\DetachAction;
 use App\Enums\UserType;
 use App\Filament\Resources\MidwifeResource;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\AttachAction;
+use Filament\Actions\DetachAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ManageMidwifeTreatments extends ManageRelatedRecords
 {
@@ -26,7 +22,7 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
 
     protected static ?string $title = 'Atur Layanan';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {
@@ -71,15 +67,15 @@ class ManageMidwifeTreatments extends ManageRelatedRecords
             ->headerActions([
                 AttachAction::make()
                     ->preloadRecordSelect()
-                    ->visible(fn() => auth()->user()->type === UserType::OWNER),
+                    ->visible(fn () => auth()->user()->type === UserType::OWNER),
             ])
             ->recordActions([
                 Action::make('Lihat Treatment')
-                    ->visible(fn() => auth()->user()->type === UserType::OWNER)
+                    ->visible(fn () => auth()->user()->type === UserType::OWNER)
                     ->icon('heroicon-o-document-text')
-                    ->url(fn($record) => route('filament.admin.resources.treatments.edit', $record)),
+                    ->url(fn ($record) => route('filament.admin.resources.treatments.edit', $record)),
                 DetachAction::make()
-                    ->visible(fn() => auth()->user()->type === UserType::OWNER),
+                    ->visible(fn () => auth()->user()->type === UserType::OWNER),
             ])
             ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([

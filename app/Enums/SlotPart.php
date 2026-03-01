@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum SlotPart: int implements HasLabel, HasColor
+enum SlotPart: int implements HasColor, HasLabel
 {
     case MORNING = 1;
     case AFTERNOON = 2;
@@ -25,5 +25,4 @@ enum SlotPart: int implements HasLabel, HasColor
             self::AFTERNOON => 'warning',
         };
     }
-
 }

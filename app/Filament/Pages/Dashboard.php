@@ -2,8 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Traits\EnsureOnlyAdminCanAccess;
-
 class Dashboard extends \Filament\Pages\Dashboard
 {
     public function mount()
@@ -12,5 +10,4 @@ class Dashboard extends \Filament\Pages\Dashboard
             return to_route('midwife.dashboard');
         }
     }
-
 }

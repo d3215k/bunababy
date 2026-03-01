@@ -2,9 +2,6 @@
 
 namespace App\Livewire\Midwife;
 
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Support\Enums\Width;
 use App\Enums\MidwifeOrderStatus;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
@@ -12,12 +9,14 @@ use App\Models\Order;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\Width;
 use Livewire\Component;
 
-class FinishOrderComponent extends Component implements HasForms, HasActions
+class FinishOrderComponent extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;

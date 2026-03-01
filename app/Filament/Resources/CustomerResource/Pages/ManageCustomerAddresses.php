@@ -2,22 +2,17 @@
 
 namespace App\Filament\Resources\CustomerResource\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
+use App\Filament\Resources\CustomerResource;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
-use App\Filament\Resources\CustomerResource;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRelatedRecords;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ManageCustomerAddresses extends ManageRelatedRecords
 {
@@ -25,7 +20,7 @@ class ManageCustomerAddresses extends ManageRelatedRecords
 
     protected static string $relationship = 'addresses';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
     {

@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum TimetableType: int implements HasLabel, HasColor
+enum TimetableType: int implements HasColor, HasLabel
 {
     case LEAVE = 1;
     case OVERTIME = 2;

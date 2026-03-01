@@ -14,15 +14,17 @@ class DateTime
         //
     }
 
-    public static function calculateAge($dob = null) {
+    public static function calculateAge($dob = null)
+    {
         if ($dob === null) {
             return '';
         }
         $age = Carbon::parse($dob)->diffInYears();
-        $string = round($age) . ' tahun';
+        $string = round($age).' tahun';
         if ($age <= 2) {
-            $string = round(Carbon::parse($dob)->diffInMonths()) . ' bulan';
+            $string = round(Carbon::parse($dob)->diffInMonths()).' bulan';
         }
+
         return $string;
     }
 }

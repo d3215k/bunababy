@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class MidwifeSeeder extends Seeder
 {
@@ -24,7 +21,7 @@ class MidwifeSeeder extends Seeder
         $midwife1->treatments()->attach([
             1, 2, 3, 4,
             5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-            15, 16, 17, 18, 19, 20, 21
+            15, 16, 17, 18, 19, 20, 21,
         ]);
 
         $midwife2 = \App\Models\Midwife::factory()
@@ -37,7 +34,7 @@ class MidwifeSeeder extends Seeder
         $midwife2->treatments()->attach([
             1, 2, 3, 4,
             // 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-            15, 16, 17, 18, 19, 20, 21
+            15, 16, 17, 18, 19, 20, 21,
         ]);
 
         $midwife3 = \App\Models\Midwife::factory()
@@ -50,7 +47,7 @@ class MidwifeSeeder extends Seeder
         $midwife3->treatments()->attach([
             // 1, 2, 3, 4,
             5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-            15, 16, 17, 18, 19, 20, 21
+            15, 16, 17, 18, 19, 20, 21,
         ]);
 
         $midwife4 = \App\Models\Midwife::factory()
@@ -76,7 +73,7 @@ class MidwifeSeeder extends Seeder
         $midwife5->treatments()->attach([
             1, 2, 3, 4,
             // 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-            15, 16, 17, 18, 19, 20, 21
+            15, 16, 17, 18, 19, 20, 21,
         ]);
 
         $midwife6 = \App\Models\Midwife::factory()
@@ -89,7 +86,7 @@ class MidwifeSeeder extends Seeder
         $midwife6->treatments()->attach([
             // 1, 2, 3, 4,
             5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-            15, 16, 17, 18, 19, 20, 21
+            15, 16, 17, 18, 19, 20, 21,
         ]);
     }
 }
