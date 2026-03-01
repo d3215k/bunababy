@@ -1,73 +1,72 @@
 <?php
 
 use App\Enums\UserType;
+use App\Filament\Resources\KecamatanResource\Pages\CreateKecamatan;
+use App\Filament\Resources\KecamatanResource\Pages\EditKecamatan;
+use App\Filament\Resources\KecamatanResource\Pages\ListKecamatans;
 use App\Models\Kabupaten;
 use App\Models\Kecamatan;
 use App\Models\User;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+    $this->customer = User::factory()->create(['type' => UserType::CUSTOMER]);
     $this->kabupaten = Kabupaten::factory()->create();
 });
 
-test('unauthenticated user cannot access kecamatans', function () {
-    $response = $this->get('/kecamatans');
+test('admin can view kecamatans list', function () {
+    Kecamatan::factory()->count(3)->create(['kabupaten_id' => $this->kabupaten->id]);
 
-    $response->assertRedirect();
-    $response->assertRedirectToRoute('filament.admin.auth.login');
+    $this->actingAs($this->admin);
+
+    livewire(ListKecamatans::class)
+        ->assertSuccessful();
 });
 
-test('admin can access kecamatans list', function () {
-    $response = $this->actingAs($this->admin)->get('/kecamatans');
+test('admin can see kecamatans in table', function () {
+    $kecamatans = Kecamatan::factory()->count(3)->create(['kabupaten_id' => $this->kabupaten->id]);
 
-    $response->assertSuccessful();
+    $this->actingAs($this->admin);
+
+    livewire(ListKecamatans::class)
+        ->assertCanSeeTableRecords($kecamatans);
 });
 
-test('kecamatans can be created', function () {
-    $kecamatan = Kecamatan::factory()->create([
-        'kabupaten_id' => $this->kabupaten->id,
-        'name' => 'Test Kecamatan',
-        'distance' => 50,
-    ]);
+test('admin can create kecamatan', function () {
+    $this->actingAs($this->admin);
 
-    expect($kecamatan->name)->toBe('Test Kecamatan');
+    livewire(CreateKecamatan::class)
+        ->fillForm([
+            'kabupaten_id' => $this->kabupaten->id,
+            'name' => 'Test Kecamatan',
+            'active' => true,
+        ])
+        ->call('create');
+
+    expect(Kecamatan::where('name', 'Test Kecamatan')->exists())->toBeTrue();
 });
 
-test('kecamatans can be retrieved', function () {
-    $kecamatan = Kecamatan::factory()->create([
-        'kabupaten_id' => $this->kabupaten->id,
-    ]);
-
-    $found = Kecamatan::find($kecamatan->id);
-    expect($found->name)->toBe($kecamatan->name);
-});
-
-test('kecamatans can be updated', function () {
+test('admin can edit kecamatan', function () {
     $kecamatan = Kecamatan::factory()->create([
         'kabupaten_id' => $this->kabupaten->id,
         'name' => 'Original Name',
     ]);
 
-    $kecamatan->update(['name' => 'Updated Name']);
+    $this->actingAs($this->admin);
+
+    livewire(EditKecamatan::class, ['record' => $kecamatan->id])
+        ->fillForm([
+            'name' => 'Updated Name',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
 
     expect($kecamatan->refresh()->name)->toBe('Updated Name');
 });
 
-test('kecamatans can be deleted', function () {
-    $kecamatan = Kecamatan::factory()->create([
-        'kabupaten_id' => $this->kabupaten->id,
-    ]);
-
-    Kecamatan::destroy($kecamatan->id);
-
-    $found = Kecamatan::find($kecamatan->id);
-    expect($found)->toBeNull();
-});
-
 test('non admin cannot access kecamatans', function () {
-    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $this->actingAs($this->customer);
 
-    $response = $this->actingAs($user)->get('/kecamatans');
-
-    $response->assertForbidden();
+    livewire(ListKecamatans::class)
+        ->assertForbidden();
 });

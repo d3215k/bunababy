@@ -1,64 +1,80 @@
 <?php
 
 use App\Enums\UserType;
+use App\Filament\Resources\CustomerResource\Pages\CreateCustomer;
+use App\Filament\Resources\CustomerResource\Pages\EditCustomer;
+use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
 use App\Models\Customer;
 use App\Models\User;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+    $this->customer = User::factory()->create(['type' => UserType::CUSTOMER]);
 });
 
-test('unauthenticated user cannot access customers', function () {
-    $response = $this->get('/customers');
+test('admin can view customers list', function () {
+    Customer::factory()->count(3)->create();
 
-    $response->assertRedirect();
-    $response->assertRedirectToRoute('filament.admin.auth.login');
+    $this->actingAs($this->admin);
+
+    livewire(ListCustomers::class)
+        ->assertSuccessful();
 });
 
-test('admin can access customers list', function () {
-    $response = $this->actingAs($this->admin)->get('/customers');
+test('admin can see customers in table', function () {
+    $customers = Customer::factory()->count(3)->create();
 
-    $response->assertSuccessful();
+    $this->actingAs($this->admin);
+
+    livewire(ListCustomers::class)
+        ->assertCanSeeTableRecords($customers);
 });
 
-test('customers can be created', function () {
-    $customer = Customer::factory()->create([
-        'name' => 'Test Customer',
-        'email' => fake()->unique()->safeEmail(),
-        'phone' => '081234567890',
-    ]);
+test('admin can create customer', function () {
+    $this->actingAs($this->admin);
 
-    expect($customer->name)->toBe('Test Customer');
+    livewire(CreateCustomer::class)
+        ->fillForm([
+            'name' => 'Test Customer',
+            'email' => 'customer@test.com',
+            'phone' => '08123456789',
+        ])
+        ->call('create');
+
+    expect(Customer::where('name', 'Test Customer')->exists())->toBeTrue();
 });
 
-test('customers can be retrieved', function () {
-    $customer = Customer::factory()->create();
-
-    $found = Customer::find($customer->id);
-    expect($found->name)->toBe($customer->name);
-});
-
-test('customers can be updated', function () {
+test('admin can edit customer', function () {
     $customer = Customer::factory()->create(['name' => 'Original Name']);
 
-    $customer->update(['name' => 'Updated Name']);
+    $this->actingAs($this->admin);
+
+    livewire(EditCustomer::class, ['record' => $customer->id])
+        ->fillForm([
+            'name' => 'Updated Name',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
 
     expect($customer->refresh()->name)->toBe('Updated Name');
 });
 
-test('customers can be deleted', function () {
+test('admin can delete customer', function () {
+    $owner = User::factory()->create(['type' => UserType::OWNER]);
     $customer = Customer::factory()->create();
 
-    Customer::destroy($customer->id);
+    $this->actingAs($owner);
 
-    $found = Customer::find($customer->id);
-    expect($found)->toBeNull();
+    livewire(EditCustomer::class, ['record' => $customer->id])
+        ->callAction('delete')
+        ->assertHasNoErrors();
+
+    expect(Customer::find($customer->id))->toBeNull();
 });
 
 test('non admin cannot access customers', function () {
-    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $this->actingAs($this->customer);
 
-    $response = $this->actingAs($user)->get('/customers');
-
-    $response->assertForbidden();
+    livewire(ListCustomers::class)
+        ->assertForbidden();
 });

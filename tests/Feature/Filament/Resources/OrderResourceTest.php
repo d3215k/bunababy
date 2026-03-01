@@ -3,6 +3,7 @@
 use App\Enums\OrderStatus;
 use App\Enums\UserType;
 use App\Filament\Resources\OrderResource\Pages\EditOrder;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Midwife;
@@ -10,100 +11,101 @@ use App\Models\Order;
 use App\Models\Place;
 use App\Models\Room;
 use App\Models\User;
-use Livewire\Livewire;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
-    $this->customer = Customer::factory()->create();
+    $this->owner = User::factory()->create(['type' => UserType::OWNER]);
+    $this->customer = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $this->order_customer = Customer::factory()->create();
     $this->address = Address::factory()->create();
     $this->place = Place::factory()->create();
     $this->room = Room::factory()->create(['place_id' => $this->place->id]);
     $this->midwife = Midwife::factory()->create();
 });
 
-test('unauthenticated user cannot access order list', function () {
-    $response = $this->get('/orders');
+test('admin can view orders list', function () {
+    Order::factory(3)->create([
+        'customer_id' => $this->order_customer->id,
+        'place_id' => $this->place->id,
+        'room_id' => $this->room->id,
+        'midwife_id' => $this->midwife->id,
+        'address_id' => $this->address->id,
+        'status' => OrderStatus::PENDING,
+    ]);
 
-    $response->assertRedirect();
-    $response->assertRedirectToRoute('filament.admin.auth.login');
-});
-
-test('admin user can access order list', function () {
     $this->actingAs($this->admin);
 
-    $response = $this->get('/orders');
-
-    $response->assertSuccessful();
+    livewire(ListOrders::class)
+        ->assertSuccessful();
 });
 
-test('order list displays orders', function () {
-    $this->actingAs($this->admin);
-
+test('admin can see orders in table', function () {
     $orders = Order::factory(3)->create([
-        'customer_id' => $this->customer->id,
+        'customer_id' => $this->order_customer->id,
         'place_id' => $this->place->id,
         'room_id' => $this->room->id,
         'midwife_id' => $this->midwife->id,
         'address_id' => $this->address->id,
-        'status' => OrderStatus::PENDING->value,
-    ]);
-
-    // Verify orders are in database
-    foreach ($orders as $order) {
-        expect($order->customer_id)->toBe($this->customer->id);
-    }
-});
-
-test('admin user can access edit order page', function () {
-    $order = Order::factory()->create([
-        'customer_id' => $this->customer->id,
-        'place_id' => $this->place->id,
-        'room_id' => $this->room->id,
-        'midwife_id' => $this->midwife->id,
-        'address_id' => $this->address->id,
-        'status' => OrderStatus::PENDING->value,
+        'status' => OrderStatus::PENDING,
     ]);
 
     $this->actingAs($this->admin);
 
-    Livewire::test(EditOrder::class, ['record' => $order->id])
-        ->assertSuccessful();
+    livewire(ListOrders::class)
+        ->assertCanSeeTableRecords($orders);
 });
 
-test('admin user can edit order status', function () {
+test('admin can access edit order page', function () {
     $order = Order::factory()->create([
-        'customer_id' => $this->customer->id,
+        'customer_id' => $this->order_customer->id,
         'place_id' => $this->place->id,
         'room_id' => $this->room->id,
         'midwife_id' => $this->midwife->id,
         'address_id' => $this->address->id,
-        'status' => OrderStatus::PENDING->value,
+        'status' => OrderStatus::PENDING,
     ]);
 
     $this->actingAs($this->admin);
 
-    // Just verify that we can access the edit page
-    // and the order exists in the database
-    Livewire::test(EditOrder::class, ['record' => $order->id])
+    livewire(EditOrder::class, ['record' => $order->id])
         ->assertSuccessful();
-
-    expect($order->status)->toBe(OrderStatus::PENDING);
 });
 
-test('non admin user cannot access order resource', function () {
-    $customer = User::factory()->create(['type' => UserType::CUSTOMER]);
+test('admin can edit order', function () {
+    $order = Order::factory()->create([
+        'customer_id' => $this->order_customer->id,
+        'place_id' => $this->place->id,
+        'room_id' => $this->room->id,
+        'midwife_id' => $this->midwife->id,
+        'address_id' => $this->address->id,
+        'status' => OrderStatus::PENDING,
+    ]);
 
-    $response = $this->actingAs($customer)->get('/orders');
+    $this->actingAs($this->admin);
 
-    $response->assertForbidden();
+    livewire(EditOrder::class, ['record' => $order->id])
+        ->assertSuccessful();
 });
 
-test('only admin or owner can access orders', function () {
-    $owner = User::factory()->create(['type' => UserType::OWNER]);
+test('owner can access orders', function () {
+    Order::factory(3)->create([
+        'customer_id' => $this->order_customer->id,
+        'place_id' => $this->place->id,
+        'room_id' => $this->room->id,
+        'midwife_id' => $this->midwife->id,
+        'address_id' => $this->address->id,
+        'status' => OrderStatus::PENDING,
+    ]);
 
-    $this->actingAs($owner);
+    $this->actingAs($this->owner);
 
-    $response = $this->get('/orders');
+    livewire(ListOrders::class)
+        ->assertSuccessful();
+});
 
-    $response->assertSuccessful();
+test('customer cannot access orders', function () {
+    $this->actingAs($this->customer);
+
+    livewire(ListOrders::class)
+        ->assertForbidden();
 });

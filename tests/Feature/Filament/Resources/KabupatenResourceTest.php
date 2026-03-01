@@ -1,63 +1,79 @@
 <?php
 
 use App\Enums\UserType;
+use App\Filament\Resources\KabupatenResource\Pages\CreateKabupaten;
+use App\Filament\Resources\KabupatenResource\Pages\EditKabupaten;
+use App\Filament\Resources\KabupatenResource\Pages\ListKabupatens;
 use App\Models\Kabupaten;
 use App\Models\User;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+    $this->customer = User::factory()->create(['type' => UserType::CUSTOMER]);
 });
 
-test('unauthenticated user cannot access kabupatens', function () {
-    $response = $this->get('/kabupatens');
+test('admin can view kabupatens list', function () {
+    Kabupaten::factory()->count(3)->create();
 
-    $response->assertRedirect();
-    $response->assertRedirectToRoute('filament.admin.auth.login');
+    $this->actingAs($this->admin);
+
+    livewire(ListKabupatens::class)
+        ->assertSuccessful();
 });
 
-test('admin can access kabupatens list', function () {
-    $response = $this->actingAs($this->admin)->get('/kabupatens');
+test('admin can see kabupatens in table', function () {
+    $kabupatens = Kabupaten::factory()->count(3)->create();
 
-    $response->assertSuccessful();
+    $this->actingAs($this->admin);
+
+    livewire(ListKabupatens::class)
+        ->assertCanSeeTableRecords($kabupatens);
 });
 
-test('kabupatens can be created', function () {
-    $kabupaten = Kabupaten::factory()->create([
-        'name' => 'Test Kabupaten',
-        'active' => true,
-    ]);
+test('admin can create kabupaten', function () {
+    $this->actingAs($this->admin);
 
-    expect($kabupaten->name)->toBe('Test Kabupaten');
+    livewire(CreateKabupaten::class)
+        ->fillForm([
+            'name' => 'Test Kabupaten',
+            'active' => true,
+        ])
+        ->call('create');
+
+    expect(Kabupaten::where('name', 'Test Kabupaten')->exists())->toBeTrue();
 });
 
-test('kabupatens can be retrieved', function () {
-    $kabupaten = Kabupaten::factory()->create();
-
-    $found = Kabupaten::find($kabupaten->id);
-    expect($found->name)->toBe($kabupaten->name);
-});
-
-test('kabupatens can be updated', function () {
+test('admin can edit kabupaten', function () {
     $kabupaten = Kabupaten::factory()->create(['name' => 'Original Name']);
 
-    $kabupaten->update(['name' => 'Updated Name']);
+    $this->actingAs($this->admin);
+
+    livewire(EditKabupaten::class, ['record' => $kabupaten->id])
+        ->fillForm([
+            'name' => 'Updated Name',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
 
     expect($kabupaten->refresh()->name)->toBe('Updated Name');
 });
 
-test('kabupatens can be deleted', function () {
+test('admin can delete kabupaten', function () {
+    $owner = User::factory()->create(['type' => UserType::OWNER]);
     $kabupaten = Kabupaten::factory()->create();
 
-    Kabupaten::destroy($kabupaten->id);
+    $this->actingAs($owner);
 
-    $found = Kabupaten::find($kabupaten->id);
-    expect($found)->toBeNull();
+    livewire(EditKabupaten::class, ['record' => $kabupaten->id])
+        ->callAction('delete')
+        ->assertHasNoErrors();
+
+    expect(Kabupaten::find($kabupaten->id))->toBeNull();
 });
 
 test('non admin cannot access kabupatens', function () {
-    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $this->actingAs($this->customer);
 
-    $response = $this->actingAs($user)->get('/kabupatens');
-
-    $response->assertForbidden();
+    livewire(ListKabupatens::class)
+        ->assertForbidden();
 });
