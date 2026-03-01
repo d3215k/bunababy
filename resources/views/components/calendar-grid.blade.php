@@ -51,15 +51,32 @@
         @endforeach
 
         @foreach ($schedules as $schedule)
-            <a target="_blank" href="{{ route('filament.admin.resources.orders.edit', $schedule['id']) }}" wire:key="{{ $schedule['id'] }}"
-                style="padding: 0.25rem; position: relative; {{ $schedule['classes'] }}">
-                <div style="display: flex; flex-direction: column; overflow-y: scroll; height: 100%; width: 100%; font-size: 0.75rem; line-height: 1.25;">
-                    <span style="font-weight: 500;">{{ $schedule['time'] }}</span>
-                    <span style="font-weight: 600;">{{ $schedule['customer_name'] }}</span>
-                    <span>{{ $schedule['treatments'] }}</span>
-                    <span style="margin-top: 0.125rem;">{{ $schedule[$scheduleFooterKey] ?? '' }}</span>
+            <div x-data="{ showTooltip: false }"
+                 style="padding: 0.25rem; position: relative; {{ $schedule['classes'] }}"
+                 @mouseenter="showTooltip = true"
+                 @mouseleave="showTooltip = false">
+                <a target="_blank"
+                   href="{{ route('filament.admin.resources.orders.edit', $schedule['id']) }}"
+                   wire:key="{{ $schedule['id'] }}"
+                   style="display: block; height: 100%; width: 100%;">
+                    <div style="display: flex; flex-direction: column; overflow-y: scroll; height: 100%; width: 100%; font-size: 0.75rem; line-height: 1.25;">
+                        <span style="font-weight: 500;">{{ $schedule['time'] }}</span>
+                        <span style="font-weight: 600;">{{ $schedule['customer_name'] }}</span>
+                        <span>{{ $schedule['treatments'] }}</span>
+                        <span style="margin-top: 0.125rem;">{{ $schedule[$scheduleFooterKey] ?? '' }}</span>
+                    </div>
+                </a>
+
+                <div x-show="showTooltip"
+                     x-transition
+                     style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); margin-top: 0.5rem; z-index: 1000; background-color: rgba(0, 0, 0, 0.9); color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                    <div style="font-weight: 500;">{{ $schedule['time'] }}</div>
+                    <div style="font-weight: 600; margin-top: 0.125rem;">{{ $schedule['customer_name'] }}</div>
+                    <div style="margin-top: 0.25rem;">{{ $schedule['treatments'] }}</div>
+                    <div style="margin-top: 0.25rem; font-size: 0.65rem; opacity: 0.8;">{{ $schedule[$scheduleFooterKey] ?? '' }}</div>
+                    <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 0.375rem solid transparent; border-bottom-color: rgba(0, 0, 0, 0.9);"></div>
                 </div>
-            </a>
+            </div>
         @endforeach
     </div>
 </div>
