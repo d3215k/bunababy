@@ -16,6 +16,10 @@ class PlacesRelationManager extends RelationManager
 {
     protected static string $relationship = 'places';
 
+    protected static ?string $title = 'Tempat';
+
+    protected static ?string $modelLabel = 'Tempat';
+
     public function form(Schema $schema): Schema
     {
         return $schema
