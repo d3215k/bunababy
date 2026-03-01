@@ -66,7 +66,7 @@ class OrderService
         // Check if midwife is on leave
         $isMidwifeOnLeave = Timetable::query()
             ->where('midwife_id', $data['midwife_id'])
-            ->where('date', $data['date'])
+            ->whereDate('date', $data['date'])
             ->whereIn('type', [TimetableType::LEAVE])
             ->exists();
 
@@ -77,7 +77,7 @@ class OrderService
         // Check if midwife has clinic-only timetable (can only work at specific clinic)
         $clinicTimetable = Timetable::query()
             ->where('midwife_id', $data['midwife_id'])
-            ->where('date', $data['date'])
+            ->whereDate('date', $data['date'])
             ->where('type', TimetableType::CLINIC)
             ->first();
 
@@ -102,7 +102,7 @@ class OrderService
 
         // 1. Check midwife availability across all places
         // A midwife can't be in multiple places at once
-        $midwifeConflicts = Order::where('date', $data['date'])
+        $midwifeConflicts = Order::whereDate('date', $data['date'])
             ->where('midwife_id', $data['midwife_id'])
             ->when($excludeOrderId,
                 fn ($query) => $query->where('id', '!=', $excludeOrderId),
@@ -117,7 +117,7 @@ class OrderService
         // 2. Check room availability for clinic orders
         // A room can only be used by one order at a time (regardless of which midwife)
         if (isset($data['room_id']) && $data['room_id']) {
-            $roomConflicts = Order::where('date', $data['date'])
+            $roomConflicts = Order::whereDate('date', $data['date'])
                 ->where('room_id', $data['room_id'])
                 ->when($excludeOrderId,
                     fn ($query) => $query->where('id', '!=', $excludeOrderId),

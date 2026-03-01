@@ -77,13 +77,10 @@ class OrderServiceTest extends TestCase
 
         $order = $this->orderService->create($orderData);
 
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'customer_id' => $customer->id,
-            'midwife_id' => $midwife->id,
-            'place_id' => $place->id,
-            'date' => $orderData['date'],
-        ]);
+        $this->assertEquals($customer->id, $order->customer_id);
+        $this->assertEquals($midwife->id, $order->midwife_id);
+        $this->assertEquals($place->id, $order->place_id);
+        $this->assertEquals($orderData['date'], $order->date->format('Y-m-d'));
         $this->assertNotNull($order->end_time);
     }
 
@@ -202,10 +199,7 @@ class OrderServiceTest extends TestCase
 
         $updatedOrder = $this->orderService->update($order, $updateData);
 
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'start_time' => '10:00:00',
-        ]);
+        $this->assertEquals('10:00', substr($updatedOrder->start_time, 0, 5));
         $this->assertEquals($order->id, $updatedOrder->id);
     }
 

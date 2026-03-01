@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Customer;
+use App\Models\Kecamatan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +24,7 @@ class AddressFactory extends Factory
             'address' => $this->faker->address(),
             'desa' => $this->faker->word(),
             'is_main' => true,
-            'kecamatan_id' => rand(1, 70),
+            'kecamatan_id' => Kecamatan::factory(),
         ];
     }
 }
