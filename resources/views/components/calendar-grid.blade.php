@@ -68,12 +68,12 @@
                 </a>
 
                 <div x-show="showTooltip"
-                     x-transition
-                     style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); margin-top: 0.5rem; z-index: 1000; background-color: rgba(0, 0, 0, 0.9); color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                     x-cloak
+                     style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); margin-top: 0.5rem; z-index: 1000; background-color: rgba(0, 0, 0, 0.9); color: white; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; line-height: 1.25rem; min-width: 250px; max-width: 350px; pointer-events: none; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                     <div style="font-weight: 500;">{{ $schedule['time'] }}</div>
                     <div style="font-weight: 600; margin-top: 0.125rem;">{{ $schedule['customer_name'] }}</div>
                     <div style="margin-top: 0.25rem;">{{ $schedule['treatments'] }}</div>
-                    <div style="margin-top: 0.25rem; font-size: 0.65rem; opacity: 0.8;">{{ $schedule[$scheduleFooterKey] ?? '' }}</div>
+                    <div style="margin-top: 0.25rem;">{{ $schedule[$scheduleFooterKey] ?? '' }}</div>
                     <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 0.375rem solid transparent; border-bottom-color: rgba(0, 0, 0, 0.9);"></div>
                 </div>
             </div>
