@@ -52,12 +52,12 @@
 
         @foreach ($schedules as $schedule)
             <a target="_blank" href="{{ route('filament.admin.resources.orders.edit', $schedule['id']) }}" wire:key="{{ $schedule['id'] }}"
-                style="padding: 0.25rem; position: relative; overflow: hidden; {{ $schedule['classes'] }}">
-                <div style="display: flex; flex-direction: column; overflow-y: auto; height: 100%; width: 100%; font-size: 0.75rem; line-height: 1.25;">
-                    <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $schedule['time'] }}</span>
-                    <span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $schedule['customer_name'] }}</span>
-                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $schedule['treatments'] }}</span>
-                    <span style="margin-top: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px;">{{ $schedule[$scheduleFooterKey] ?? '' }}</span>
+                style="padding: 0.25rem; position: relative; {{ $schedule['classes'] }}">
+                <div style="display: flex; flex-direction: column; overflow-y: scroll; height: 100%; width: 100%; font-size: 0.75rem; line-height: 1.25;">
+                    <span style="font-weight: 500;">{{ $schedule['time'] }}</span>
+                    <span style="font-weight: 600;">{{ $schedule['customer_name'] }}</span>
+                    <span>{{ $schedule['treatments'] }}</span>
+                    <span style="margin-top: 0.125rem;">{{ $schedule[$scheduleFooterKey] ?? '' }}</span>
                 </div>
             </a>
         @endforeach

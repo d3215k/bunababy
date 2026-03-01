@@ -46,8 +46,5 @@ class DatabaseSeeder extends Seeder
             ->has(\App\Models\Family::factory()->count(2), 'families')
             ->create();
 
-        $this->call([
-            DummyOrderSeeder::class,
-        ]);
     }
 }
