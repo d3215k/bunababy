@@ -16,6 +16,9 @@ class MidwivesRelationManager extends RelationManager
 {
     protected static string $relationship = 'midwives';
 
+    protected static ?string $modelLabel = 'Bidan';
+    protected static ?string $title = 'Bidan';
+
     public function form(Schema $schema): Schema
     {
         return $schema

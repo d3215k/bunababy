@@ -24,6 +24,10 @@ class ManageMidwifeTimetables extends ManageRelatedRecords
 
     protected static string $relationship = 'timetables';
 
+    protected static ?string $title = 'Penjadwalan';
+
+    protected static ?string $modelLabel = 'Penjadwalan';
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationLabel(): string
