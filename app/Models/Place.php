@@ -42,6 +42,7 @@ class Place extends Model
     public function treatments(): BelongsToMany
     {
         return $this->belongsToMany(Treatment::class, 'prices', 'place_id', 'treatment_id')
+            ->select('treatments.id', 'treatments.name', 'treatments.duration', 'treatments.active')
             ->withPivot('amount')
             ->withTimestamps();
     }

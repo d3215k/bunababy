@@ -58,7 +58,6 @@ class DummyOrderSeeder extends Seeder
         ];
 
         $orderIndex = 0;
-        $midwives = [1, 2, 3, 4, 5, 6];
 
         // Loop through 61 days: -30 to +30
         for ($dayOffset = -30; $dayOffset <= 30; $dayOffset++) {
@@ -81,12 +80,30 @@ class DummyOrderSeeder extends Seeder
                 $address = $customer->addresses()->inRandomOrder()->first();
                 $family = $customer->families()->inRandomOrder()->first();
                 $place = Place::with('slots', 'treatments')->inRandomOrder()->first();
-                $room = $place->rooms()->inRandomOrder()->first();
 
                 if (! $address || ! $family || ! $place) {
                     $bar->advance();
 
                     continue;
+                }
+
+                // Determine available midwives based on place type
+                if ($place->type === \App\Enums\PlaceType::HOMECARE) {
+                    // For homecare, get midwives that operate in the same kecamatan as customer's address
+                    $midwives = \App\Models\Midwife::whereHas('kecamatans', function ($query) use ($address) {
+                        $query->where('kecamatan_id', $address->kecamatan_id);
+                    })
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (empty($midwives)) {
+                        $bar->advance();
+
+                        continue;
+                    }
+                } else {
+                    // For clinic, use all midwives
+                    $midwives = \App\Models\Midwife::pluck('id')->toArray();
                 }
 
                 // Get available slots for this place
@@ -145,6 +162,7 @@ class DummyOrderSeeder extends Seeder
                         // HOMECARE: Treatment based on midwife capability only
                         $midwife = \App\Models\Midwife::with('treatments')->find($midwifeId);
                         $availableTreatmentIds = $midwife->treatments->pluck('id')->toArray();
+                        $room = null;
                     } else {
                         // CLINIC: Treatment based on place availability only (from prices/place treatments)
                         // Assume all midwives at clinic can perform all treatments available at that clinic
@@ -164,6 +182,29 @@ class DummyOrderSeeder extends Seeder
                     // Pick a random treatment from available treatments
                     $treatmentId = $availableTreatmentIds[array_rand($availableTreatmentIds)];
                     $treatment = Treatment::find($treatmentId);
+
+                    // For clinic, find a room that serves this treatment
+                    if ($place->type === \App\Enums\PlaceType::CLINIC) {
+                        $room = $place->rooms()
+                            ->whereHas('treatments', function ($query) use ($treatmentId) {
+                                $query->where('treatment_id', $treatmentId);
+                            })
+                            ->inRandomOrder()
+                            ->first();
+
+                        // If no room available for this treatment, try next treatment
+                        if (!$room) {
+                            $timeIndex = ($timeIndex + 1) % count($availableTimes);
+                            if ($timeIndex === 0) {
+                                $midwifeIndex = ($midwifeIndex + 1) % count($midwives);
+                                $midwifeId = $midwives[$midwifeIndex];
+                            }
+                            $attempts++;
+
+                            continue;
+                        }
+                    }
+
                     $price = Price::where('treatment_id', $treatment->id)
                         ->where('place_id', $place->id)
                         ->first()?->amount ?? 0;

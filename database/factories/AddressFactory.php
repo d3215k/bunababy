@@ -18,13 +18,28 @@ class AddressFactory extends Factory
      */
     public function definition(): array
     {
+        // Get kecamatan that have midwives
+        $kecamatanIds = \App\Models\Midwife::with('kecamatans')
+            ->get()
+            ->flatMap(fn($midwife) => $midwife->kecamatans->pluck('id'))
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // Fallback to any existing kecamatan if none have midwives
+        if (empty($kecamatanIds)) {
+            $kecamatanIds = Kecamatan::pluck('id')->toArray();
+        }
+
+        $kecamatanId = empty($kecamatanIds) ? Kecamatan::factory() : $kecamatanIds[array_rand($kecamatanIds)];
+
         return [
             'customer_id' => Customer::factory(),
             'label' => $this->faker->word(),
             'address' => $this->faker->address(),
             'desa' => $this->faker->word(),
             'is_main' => true,
-            'kecamatan_id' => Kecamatan::factory(),
+            'kecamatan_id' => $kecamatanId,
         ];
     }
 }
