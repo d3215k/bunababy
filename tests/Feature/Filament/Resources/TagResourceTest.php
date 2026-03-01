@@ -1,87 +1,64 @@
 <?php
 
-namespace Tests\Feature\Filament\Resources;
-
 use App\Enums\UserType;
 use App\Models\Tag;
 use App\Models\User;
-use Tests\TestCase;
 
-class TagResourceTest extends TestCase
-{
-    protected User $admin;
+beforeEach(function () {
+    $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
-    }
+test('unauthenticated user cannot access tags', function () {
+    $response = $this->get('/tags');
 
-    public function test_unauthenticated_user_cannot_access_tags(): void
-    {
-        $response = $this->get('/tags');
+    $response->assertRedirect();
+    $response->assertRedirectToRoute('filament.admin.auth.login');
+});
 
-        $response->assertRedirect();
-        $response->assertRedirectToRoute('filament.admin.auth.login');
-    }
+test('admin can access tags list', function () {
+    $response = $this->actingAs($this->admin)->get('/tags');
 
-    public function test_admin_can_access_tags_list(): void
-    {
-        $response = $this->actingAs($this->admin)->get('/tags');
+    $response->assertSuccessful();
+});
 
-        $response->assertSuccessful();
-    }
+test('tags can be created', function () {
+    $tag = Tag::factory()->create([
+        'name' => 'Test Tag',
+        'description' => 'Test Description',
+    ]);
 
-    public function test_tags_can_be_created(): void
-    {
-        Tag::factory()->create([
-            'name' => 'Test Tag',
-            'description' => 'Test Description',
-        ]);
+    expect($tag->name)->toBe('Test Tag')
+        ->and($tag->description)->toBe('Test Description');
+});
 
-        $this->assertDatabaseHas(Tag::class, [
-            'name' => 'Test Tag',
-            'description' => 'Test Description',
-        ]);
-    }
+test('tags can be retrieved', function () {
+    $tag = Tag::factory()->create();
 
-    public function test_tags_can_be_retrieved(): void
-    {
-        $tag = Tag::factory()->create();
+    $found = Tag::find($tag->id);
+    expect($found->name)->toBe($tag->name);
+});
 
-        $this->assertDatabaseHas(Tag::class, [
-            'id' => $tag->id,
-            'name' => $tag->name,
-        ]);
-    }
+test('tags can be updated', function () {
+    $tag = Tag::factory()->create(['name' => 'Original Name']);
 
-    public function test_tags_can_be_updated(): void
-    {
-        $tag = Tag::factory()->create(['name' => 'Original Name']);
+    $tag->update(['name' => 'Updated Name']);
 
-        $tag->update(['name' => 'Updated Name']);
+    expect($tag->refresh()->name)->toBe('Updated Name');
+});
 
-        $this->assertDatabaseHas(Tag::class, [
-            'id' => $tag->id,
-            'name' => 'Updated Name',
-        ]);
-    }
+test('tags can be deleted', function () {
+    $tag = Tag::factory()->create();
 
-    public function test_tags_can_be_deleted(): void
-    {
-        $tag = Tag::factory()->create();
+    Tag::destroy($tag->id);
 
-        Tag::destroy($tag->id);
+    $found = Tag::find($tag->id);
+    expect($found)->toBeNull();
+});
 
-        $this->assertDatabaseMissing(Tag::class, ['id' => $tag->id]);
-    }
+test('non admin cannot access tags', function () {
+    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
 
-    public function test_non_admin_cannot_access_tags(): void
-    {
-        $user = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $response = $this->actingAs($user)->get('/tags');
 
-        $response = $this->actingAs($user)->get('/tags');
-
-        $response->assertForbidden();
-    }
-}
+    $response->assertForbidden();
+});

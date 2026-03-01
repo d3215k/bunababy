@@ -1,100 +1,74 @@
 <?php
 
-namespace Tests\Feature\Filament\Resources;
-
 use App\Enums\UserType;
 use App\Models\Category;
 use App\Models\Treatment;
 use App\Models\User;
-use Tests\TestCase;
 
-class TreatmentResourceTest extends TestCase
-{
-    protected User $admin;
+beforeEach(function () {
+    $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+    $this->category = Category::factory()->create();
+});
 
-    protected Category $category;
+test('unauthenticated user cannot access treatments', function () {
+    $response = $this->get('/treatments');
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
-        $this->category = Category::factory()->create();
-    }
+    $response->assertRedirect();
+    $response->assertRedirectToRoute('filament.admin.auth.login');
+});
 
-    public function test_unauthenticated_user_cannot_access_treatments(): void
-    {
-        $response = $this->get('/treatments');
+test('admin can access treatments list', function () {
+    $response = $this->actingAs($this->admin)->get('/treatments');
 
-        $response->assertRedirect();
-        $response->assertRedirectToRoute('filament.admin.auth.login');
-    }
+    $response->assertSuccessful();
+});
 
-    public function test_admin_can_access_treatments_list(): void
-    {
-        $response = $this->actingAs($this->admin)->get('/treatments');
+test('treatments can be created', function () {
+    $treatment = Treatment::factory()->create([
+        'category_id' => $this->category->id,
+        'name' => 'Test Treatment',
+        'duration' => 60,
+    ]);
 
-        $response->assertSuccessful();
-    }
+    expect($treatment->name)->toBe('Test Treatment')
+        ->and($treatment->duration)->toBe(60);
+});
 
-    public function test_treatments_can_be_created(): void
-    {
-        Treatment::factory()->create([
-            'category_id' => $this->category->id,
-            'name' => 'Test Treatment',
-            'duration' => 60,
-        ]);
+test('treatments can be retrieved', function () {
+    $treatment = Treatment::factory()->create([
+        'category_id' => $this->category->id,
+    ]);
 
-        $this->assertDatabaseHas(Treatment::class, [
-            'category_id' => $this->category->id,
-            'name' => 'Test Treatment',
-            'duration' => 60,
-        ]);
-    }
+    $found = Treatment::find($treatment->id);
+    expect($found->name)->toBe($treatment->name);
+});
 
-    public function test_treatments_can_be_retrieved(): void
-    {
-        $treatment = Treatment::factory()->create([
-            'category_id' => $this->category->id,
-        ]);
+test('treatments can be updated', function () {
+    $treatment = Treatment::factory()->create([
+        'category_id' => $this->category->id,
+        'name' => 'Original Name',
+    ]);
 
-        $this->assertDatabaseHas(Treatment::class, [
-            'id' => $treatment->id,
-            'name' => $treatment->name,
-        ]);
-    }
+    $treatment->update(['name' => 'Updated Name']);
 
-    public function test_treatments_can_be_updated(): void
-    {
-        $treatment = Treatment::factory()->create([
-            'category_id' => $this->category->id,
-            'name' => 'Original Name',
-        ]);
+    expect($treatment->refresh()->name)->toBe('Updated Name');
+});
 
-        $treatment->update(['name' => 'Updated Name']);
+test('treatments can be deleted', function () {
+    $treatment = Treatment::factory()->create([
+        'category_id' => $this->category->id,
+    ]);
 
-        $this->assertDatabaseHas(Treatment::class, [
-            'id' => $treatment->id,
-            'name' => 'Updated Name',
-        ]);
-    }
+    Treatment::destroy($treatment->id);
 
-    public function test_treatments_can_be_deleted(): void
-    {
-        $treatment = Treatment::factory()->create([
-            'category_id' => $this->category->id,
-        ]);
+    $found = Treatment::find($treatment->id);
+    expect($found)->toBeNull();
+});
 
-        Treatment::destroy($treatment->id);
+test('non admin cannot access treatments', function () {
+    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
 
-        $this->assertDatabaseMissing(Treatment::class, ['id' => $treatment->id]);
-    }
+    $response = $this->actingAs($user)->get('/treatments');
 
-    public function test_non_admin_cannot_access_treatments(): void
-    {
-        $user = User::factory()->create(['type' => UserType::CUSTOMER]);
-
-        $response = $this->actingAs($user)->get('/treatments');
-
-        $response->assertForbidden();
-    }
-}
+    $response->assertForbidden();
+});

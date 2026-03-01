@@ -1,87 +1,64 @@
 <?php
 
-namespace Tests\Feature\Filament\Resources;
-
 use App\Enums\UserType;
 use App\Models\Category;
 use App\Models\User;
-use Tests\TestCase;
 
-class CategoryResourceTest extends TestCase
-{
-    protected User $admin;
+beforeEach(function () {
+    $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
-    }
+test('unauthenticated user cannot access categories', function () {
+    $response = $this->get('/categories');
 
-    public function test_unauthenticated_user_cannot_access_categories(): void
-    {
-        $response = $this->get('/categories');
+    $response->assertRedirect();
+    $response->assertRedirectToRoute('filament.admin.auth.login');
+});
 
-        $response->assertRedirect();
-        $response->assertRedirectToRoute('filament.admin.auth.login');
-    }
+test('admin can access categories list', function () {
+    $response = $this->actingAs($this->admin)->get('/categories');
 
-    public function test_admin_can_access_categories_list(): void
-    {
-        $response = $this->actingAs($this->admin)->get('/categories');
+    $response->assertSuccessful();
+});
 
-        $response->assertSuccessful();
-    }
+test('categories can be created', function () {
+    $category = Category::factory()->create([
+        'name' => 'Test Category',
+        'description' => 'Test Description',
+    ]);
 
-    public function test_categories_can_be_created(): void
-    {
-        Category::factory()->create([
-            'name' => 'Test Category',
-            'description' => 'Test Description',
-        ]);
+    expect($category->name)->toBe('Test Category')
+        ->and($category->description)->toBe('Test Description');
+});
 
-        $this->assertDatabaseHas(Category::class, [
-            'name' => 'Test Category',
-            'description' => 'Test Description',
-        ]);
-    }
+test('categories can be retrieved', function () {
+    $category = Category::factory()->create();
 
-    public function test_categories_can_be_retrieved(): void
-    {
-        $category = Category::factory()->create();
+    $found = Category::find($category->id);
+    expect($found->name)->toBe($category->name);
+});
 
-        $this->assertDatabaseHas(Category::class, [
-            'id' => $category->id,
-            'name' => $category->name,
-        ]);
-    }
+test('categories can be updated', function () {
+    $category = Category::factory()->create(['name' => 'Original Name']);
 
-    public function test_categories_can_be_updated(): void
-    {
-        $category = Category::factory()->create(['name' => 'Original Name']);
+    $category->update(['name' => 'Updated Name']);
 
-        $category->update(['name' => 'Updated Name']);
+    expect($category->refresh()->name)->toBe('Updated Name');
+});
 
-        $this->assertDatabaseHas(Category::class, [
-            'id' => $category->id,
-            'name' => 'Updated Name',
-        ]);
-    }
+test('categories can be deleted', function () {
+    $category = Category::factory()->create();
 
-    public function test_categories_can_be_deleted(): void
-    {
-        $category = Category::factory()->create();
+    Category::destroy($category->id);
 
-        Category::destroy($category->id);
+    $found = Category::find($category->id);
+    expect($found)->toBeNull();
+});
 
-        $this->assertDatabaseMissing(Category::class, ['id' => $category->id]);
-    }
+test('non admin cannot access categories', function () {
+    $customer = User::factory()->create(['type' => UserType::CUSTOMER]);
 
-    public function test_non_admin_cannot_access_categories(): void
-    {
-        $customer = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $response = $this->actingAs($customer)->get('/categories');
 
-        $response = $this->actingAs($customer)->get('/categories');
-
-        $response->assertForbidden();
-    }
-}
+    $response->assertForbidden();
+});

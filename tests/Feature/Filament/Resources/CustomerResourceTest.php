@@ -1,87 +1,64 @@
 <?php
 
-namespace Tests\Feature\Filament\Resources;
-
 use App\Enums\UserType;
 use App\Models\Customer;
 use App\Models\User;
-use Tests\TestCase;
 
-class CustomerResourceTest extends TestCase
-{
-    protected User $admin;
+beforeEach(function () {
+    $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->admin = User::factory()->create(['type' => UserType::ADMIN]);
-    }
+test('unauthenticated user cannot access customers', function () {
+    $response = $this->get('/customers');
 
-    public function test_unauthenticated_user_cannot_access_customers(): void
-    {
-        $response = $this->get('/customers');
+    $response->assertRedirect();
+    $response->assertRedirectToRoute('filament.admin.auth.login');
+});
 
-        $response->assertRedirect();
-        $response->assertRedirectToRoute('filament.admin.auth.login');
-    }
+test('admin can access customers list', function () {
+    $response = $this->actingAs($this->admin)->get('/customers');
 
-    public function test_admin_can_access_customers_list(): void
-    {
-        $response = $this->actingAs($this->admin)->get('/customers');
+    $response->assertSuccessful();
+});
 
-        $response->assertSuccessful();
-    }
+test('customers can be created', function () {
+    $customer = Customer::factory()->create([
+        'name' => 'Test Customer',
+        'email' => fake()->unique()->safeEmail(),
+        'phone' => '081234567890',
+    ]);
 
-    public function test_customers_can_be_created(): void
-    {
-        Customer::factory()->create([
-            'name' => 'Test Customer',
-            'email' => fake()->unique()->safeEmail(),
-            'phone' => '081234567890',
-        ]);
+    expect($customer->name)->toBe('Test Customer');
+});
 
-        $this->assertDatabaseHas(Customer::class, [
-            'name' => 'Test Customer',
-        ]);
-    }
+test('customers can be retrieved', function () {
+    $customer = Customer::factory()->create();
 
-    public function test_customers_can_be_retrieved(): void
-    {
-        $customer = Customer::factory()->create();
+    $found = Customer::find($customer->id);
+    expect($found->name)->toBe($customer->name);
+});
 
-        $this->assertDatabaseHas(Customer::class, [
-            'id' => $customer->id,
-            'name' => $customer->name,
-        ]);
-    }
+test('customers can be updated', function () {
+    $customer = Customer::factory()->create(['name' => 'Original Name']);
 
-    public function test_customers_can_be_updated(): void
-    {
-        $customer = Customer::factory()->create(['name' => 'Original Name']);
+    $customer->update(['name' => 'Updated Name']);
 
-        $customer->update(['name' => 'Updated Name']);
+    expect($customer->refresh()->name)->toBe('Updated Name');
+});
 
-        $this->assertDatabaseHas(Customer::class, [
-            'id' => $customer->id,
-            'name' => 'Updated Name',
-        ]);
-    }
+test('customers can be deleted', function () {
+    $customer = Customer::factory()->create();
 
-    public function test_customers_can_be_deleted(): void
-    {
-        $customer = Customer::factory()->create();
+    Customer::destroy($customer->id);
 
-        Customer::destroy($customer->id);
+    $found = Customer::find($customer->id);
+    expect($found)->toBeNull();
+});
 
-        $this->assertDatabaseMissing(Customer::class, ['id' => $customer->id]);
-    }
+test('non admin cannot access customers', function () {
+    $user = User::factory()->create(['type' => UserType::CUSTOMER]);
 
-    public function test_non_admin_cannot_access_customers(): void
-    {
-        $user = User::factory()->create(['type' => UserType::CUSTOMER]);
+    $response = $this->actingAs($user)->get('/customers');
 
-        $response = $this->actingAs($user)->get('/customers');
-
-        $response->assertForbidden();
-    }
-}
+    $response->assertForbidden();
+});
