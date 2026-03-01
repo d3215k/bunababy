@@ -57,7 +57,19 @@ class TimetableResource extends Resource
                 Select::make('place_id')
                     ->label('Tempat')
                     ->options(fn () => Place::where('type', PlaceType::CLINIC)->pluck('name', 'id'))
-                    ->visible(fn (Get $get): bool => TimetableType::tryFrom($get('type')) === TimetableType::CLINIC)
+                    ->visible(function (Get $get): bool {
+                        $type = $get('type');
+
+                        if ($type instanceof TimetableType) {
+                            return $type === TimetableType::CLINIC;
+                        }
+
+                        if ($type === null || $type === '') {
+                            return false;
+                        }
+
+                        return TimetableType::tryFrom((int) $type) === TimetableType::CLINIC;
+                    })
                     ->required()
                     ->reactive(),
                 Textarea::make('note')
